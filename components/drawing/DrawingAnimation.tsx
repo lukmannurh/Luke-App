@@ -56,72 +56,77 @@ export function DrawingAnimation({
     };
   }, [roomId]);
 
-  const ensureWinners = async () => {
-    let finalWinners = [...pendingWinnersRef.current];
-    if (finalWinners.length === 0 && participantCount > 0) {
-      try {
-        const res = await fetch(`/api/rooms/${roomId}/winners`);
-        if (res.ok) {
-          const data = await res.json();
-          finalWinners = data.winners.map((w: any) => ({
-            sequence: w.sequence,
-            userId: w.userId,
-            username: w.user?.username || "Unknown User",
-            selectedNumber: w.selectedNumber,
-          }));
-          pendingWinnersRef.current = finalWinners;
-        }
-      } catch (err) {}
-    }
-    return finalWinners;
-  };
+  // Hybrid animation logic (Async Sequence)
+  const animationStartedRef = useRef(false);
 
-  // Hybrid animation logic
   useEffect(() => {
-    if (phase === "done") return;
+    if (animationStartedRef.current) return;
+    animationStartedRef.current = true;
 
-    if (totalWinners > 5) {
-      // MASSIVE 3-SECOND SPIN FOR >5 WINNERS
-      if (phase === "awaiting_winners") {
-        setPhase("spinning");
-        return;
-      }
+    let isCancelled = false;
+
+    const ensureWinners = async () => {
+      let finalWinners = [...pendingWinnersRef.current];
+      // Ensure we have all expected winners before starting the sequence
+      const expectedWinners = Math.min(totalWinners, participantCount);
       
-      if (phase === "spinning") {
-        const interval = setInterval(() => {
-          setDisplayDigits([randomDigit(), randomDigit(), randomDigit()]);
-        }, 50);
-        
-        const timeout = setTimeout(async () => {
-          clearInterval(interval);
-          const w = await ensureWinners();
-          setWinners(w);
-          setPhase("done");
-          router.refresh();
-        }, 3000); // 3 seconds rapid spin
-        
-        return () => {
-          clearInterval(interval);
-          clearTimeout(timeout);
-        };
+      if (finalWinners.length < expectedWinners && participantCount > 0) {
+        try {
+          const res = await fetch(`/api/rooms/${roomId}/winners`);
+          if (res.ok) {
+            const data = await res.json();
+            finalWinners = data.winners.map((w: any) => ({
+              sequence: w.sequence,
+              userId: w.userId,
+              username: w.user?.username || "Unknown User",
+              selectedNumber: w.selectedNumber,
+            }));
+            pendingWinnersRef.current = finalWinners;
+          }
+        } catch (err) {}
       }
-    } else {
-      // SEQUENTIAL SLOT MACHINE FOR <= 5 WINNERS
-      if (phase === "awaiting_winners") {
-        setPhase("spinning");
-        return;
-      }
+      return finalWinners;
+    };
+
+    const runAnimation = async () => {
+      // Small delay to allow realtime events to arrive first
+      await new Promise(r => setTimeout(r, 500));
+      if (isCancelled) return;
       
-      if (phase === "spinning") {
-        const interval = setInterval(() => {
+      const w = await ensureWinners();
+      const sortedWinners = w.sort((a, b) => a.sequence - b.sequence);
+      
+      if (totalWinners > 5) {
+        // MASSIVE 3-SECOND SPIN FOR >5 WINNERS
+        setPhase("spinning");
+        const spinEnd = Date.now() + 3000;
+        while (Date.now() < spinEnd) {
+          if (isCancelled) return;
           setDisplayDigits([randomDigit(), randomDigit(), randomDigit()]);
-        }, 50);
-        
-        const timeout = setTimeout(async () => {
-          clearInterval(interval);
-          const w = await ensureWinners();
-          const targetWinner = w.sort((a, b) => a.sequence - b.sequence)[currentWinnerIndex];
+          await new Promise(r => setTimeout(r, 50));
+        }
+        if (isCancelled) return;
+        setWinners(sortedWinners);
+        setPhase("done");
+        router.refresh();
+      } else {
+        // SEQUENTIAL SLOT MACHINE FOR <= 5 WINNERS
+        for (let i = 0; i < sortedWinners.length; i++) {
+          if (isCancelled) return;
           
+          // Explicitly track the correct winner index
+          setCurrentWinnerIndex(i);
+          setPhase("spinning");
+          
+          const spinEnd = Date.now() + 2500;
+          while (Date.now() < spinEnd) {
+            if (isCancelled) return;
+            setDisplayDigits([randomDigit(), randomDigit(), randomDigit()]);
+            await new Promise(r => setTimeout(r, 50));
+          }
+          
+          if (isCancelled) return;
+          const targetWinner = sortedWinners[i];
           if (targetWinner) {
             const str = String(targetWinner.selectedNumber);
             const padded = str.padStart(3, ' ');
@@ -131,34 +136,22 @@ export function DrawingAnimation({
           }
           
           setPhase("paused");
-        }, 2500); // 2.5 seconds per winner spin
+          await new Promise(r => setTimeout(r, 1500));
+        }
         
-        return () => {
-          clearInterval(interval);
-          clearTimeout(timeout);
-        };
+        if (isCancelled) return;
+        setWinners(sortedWinners);
+        setPhase("done");
+        router.refresh();
       }
-      
-      if (phase === "paused") {
-        const timeout = setTimeout(() => {
-          const w = pendingWinnersRef.current;
-          const actualWinnerCount = w.length;
-          
-          // If we reached the end of the available winners (or participant count was 0)
-          if (currentWinnerIndex + 1 >= (actualWinnerCount || 1)) {
-            setWinners(w);
-            setPhase("done");
-            router.refresh();
-          } else {
-            setCurrentWinnerIndex(idx => idx + 1);
-            setPhase("spinning");
-          }
-        }, 1500); // 1.5 second pause to reveal winner
-        
-        return () => clearTimeout(timeout);
-      }
-    }
-  }, [phase, currentWinnerIndex, totalWinners, participantCount, router]);
+    };
+
+    runAnimation();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [roomId, totalWinners, participantCount, router]);
 
   if (phase === "done") {
     return (
