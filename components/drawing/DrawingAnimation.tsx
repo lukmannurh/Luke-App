@@ -34,10 +34,11 @@ export function DrawingAnimation({
   useEffect(() => {
     if (phase !== "spinning") return;
     const interval = setInterval(() => {
-      setDisplayNumber(Math.floor(Math.random() * 1000) + 1);
+      const maxBound = participantCount > 0 ? participantCount : 100;
+      setDisplayNumber(Math.floor(Math.random() * maxBound) + 1);
     }, 50); // fast 50ms spin
     return () => clearInterval(interval);
-  }, [phase]);
+  }, [phase, participantCount]);
 
   // Realtime subscription for winners
   useEffect(() => {
