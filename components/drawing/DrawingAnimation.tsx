@@ -34,7 +34,8 @@ export function DrawingAnimation({
   useEffect(() => {
     if (phase !== "spinning") return;
     const interval = setInterval(() => {
-      const maxBound = participantCount > 0 ? participantCount : 100;
+      // Ensure the maxBound is at least 9 so we get a flipping effect even if there's only 1 participant
+      const maxBound = Math.max(participantCount || 99, 9);
       setDisplayNumber(Math.floor(Math.random() * maxBound) + 1);
     }, 50); // fast 50ms spin
     return () => clearInterval(interval);
