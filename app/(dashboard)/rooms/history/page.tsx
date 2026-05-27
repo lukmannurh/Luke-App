@@ -24,7 +24,8 @@ async function HistoryContent({ searchParams }: PageProps) {
   const offset = (page - 1) * PAGE_SIZE;
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
+  const currentUserId = session?.user?.id;
 
   // Fetch finished rooms with host info and top winner
   const { data: rooms, count } = await supabase
@@ -32,7 +33,7 @@ async function HistoryContent({ searchParams }: PageProps) {
     .select(
       `
       id, title, description, deadline, drawing_completed_at,
-      drawing_participant_count, total_winners,
+      drawing_participant_count, total_winners, host_id,
       host:users!rooms_host_id_fkey(id, username, avatar_url),
       winners(sequence, selected_number, user:users!winners_user_id_fkey(username, avatar_url))
       `,
@@ -167,9 +168,15 @@ async function HistoryContent({ searchParams }: PageProps) {
                     </div>
 
                     {/* Actions */}
-                    {user?.id === (room.host as any)?.id && (
+                    {currentUserId && currentUserId === room.host_id && (
                       <div className="ml-4 self-center" onClick={(e) => e.preventDefault()}>
-                        <DeleteRoomButton roomId={room.id} roomTitle={room.title} isFinished={true} />
+                        <DeleteRoomButton 
+                          roomId={room.id} 
+                          roomTitle={room.title} 
+                          isFinished={true} 
+                          hostId={room.host_id} 
+                          currentUserId={currentUserId} 
+                        />
                       </div>
                     )}
                   </div>

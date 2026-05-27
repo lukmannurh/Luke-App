@@ -7,6 +7,8 @@ interface DeleteRoomButtonProps {
   roomId: string;
   roomTitle: string;
   isFinished?: boolean;
+  hostId?: string;
+  currentUserId?: string;
 }
 
 /**
