@@ -169,7 +169,7 @@ async function HistoryContent({ searchParams }: PageProps) {
 
                     {/* Actions */}
                     {currentUserId && currentUserId === room.host_id && (
-                      <div className="ml-4 self-center" onClick={(e) => e.preventDefault()}>
+                      <div className="ml-4 self-center">
                         <DeleteRoomButton 
                           roomId={room.id} 
                           roomTitle={room.title} 

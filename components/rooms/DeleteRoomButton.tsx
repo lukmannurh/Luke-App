@@ -76,7 +76,11 @@ export function DeleteRoomButton({ roomId, roomTitle, isFinished }: DeleteRoomBu
         <div className="flex gap-2">
           <button
             id="delete-room-confirm-btn"
-            onClick={handleDelete}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleDelete();
+            }}
             disabled={isDeleting}
             className="neo-btn neo-btn-destructive neo-btn-sm flex-1"
             aria-busy={isDeleting}
@@ -95,7 +99,9 @@ export function DeleteRoomButton({ roomId, roomTitle, isFinished }: DeleteRoomBu
           </button>
           <button
             id="delete-room-cancel-btn"
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               setConfirming(false);
               setError(null);
             }}
@@ -112,7 +118,11 @@ export function DeleteRoomButton({ roomId, roomTitle, isFinished }: DeleteRoomBu
   return (
     <button
       id="delete-room-btn"
-      onClick={() => setConfirming(true)}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setConfirming(true);
+      }}
       className="neo-btn neo-btn-destructive neo-btn-sm"
       aria-label={`Delete room "${roomTitle}"`}
     >
