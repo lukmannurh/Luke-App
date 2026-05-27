@@ -3,6 +3,7 @@ import "@/app/globals.css";
 import { Space_Grotesk, Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -64,6 +65,7 @@ export default function RootLayout({
             },
           }}
         />
+        <SpeedInsights />
       </body>
 
     </html>
