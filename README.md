@@ -1,5 +1,4 @@
 <div align="center">
-  <img src="public/icon-192.png" alt="Giveaway App Logo" width="120" />
 
   # 🎁 Giveaway App
   
