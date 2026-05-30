@@ -6,26 +6,20 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sign In | Giveaway App",
-  description:
-    "Sign in with Google, your email, or play instantly as a guest to join and create giveaways.",
+  title: "Sign Up | Giveaway App",
+  description: "Create an account to join and host fair, transparent giveaways.",
   robots: "noindex",
 };
 
-interface LoginPageProps {
+interface RegisterPageProps {
   searchParams: Promise<{ redirectedFrom?: string; error?: string }>;
 }
 
-/**
- * Login Page — Server Component.
- * Supports three auth methods: Google OAuth, Email/Password, and Guest Login.
- * Redirects to home if the user is already authenticated.
- */
-export default async function LoginPage({ searchParams }: LoginPageProps) {
+export default async function RegisterPage({ searchParams }: RegisterPageProps) {
   const supabase = await createClient();
   const params = await searchParams;
 
-  // Already authenticated → skip login
+  // Already authenticated → skip signup
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -34,8 +28,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   }
 
   const errorMessages: Record<string, string> = {
-    no_code: "The sign-in link was invalid. Please try again.",
-    auth_failed: "Something went wrong during sign-in. Please try again.",
+    no_code: "The sign-up link was invalid. Please try again.",
+    auth_failed: "Something went wrong during sign-up. Please try again.",
   };
   const oauthError = params.error ? errorMessages[params.error] : null;
 
@@ -50,7 +44,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         style={{ background: "var(--color-background)" }}
         aria-hidden="true"
       >
-        {/* Neobrutalism accent stripe */}
         <div
           className="absolute top-0 left-0 right-0 h-2"
           style={{ background: "var(--color-primary)" }}
@@ -59,10 +52,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
       <div className="w-full max-w-sm flex flex-col gap-4">
         {/* ───── Header Card ───── */}
-        <div
-          className="neo-card p-6 flex flex-col items-center gap-4"
-        >
-          {/* App icon */}
+        <div className="neo-card p-6 flex flex-col items-center gap-4">
           <div
             className="w-16 h-16 flex items-center justify-center text-3xl border-3 border-[var(--color-border)]"
             style={{
@@ -71,7 +61,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             }}
             aria-hidden="true"
           >
-            🎁
+            🚀
           </div>
 
           <div className="text-center">
@@ -79,29 +69,26 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               className="text-2xl font-black"
               style={{ fontFamily: "var(--font-display)" }}
             >
-              Giveaway App
+              Create Account
             </h1>
             <p
               className="text-sm font-medium mt-1"
               style={{ color: "var(--color-muted-foreground)" }}
             >
-              Fair, transparent giveaways for your community.
+              Join the community.
             </p>
           </div>
         </div>
 
         {/* ───── Auth Card ───── */}
         <div className="neo-card p-6 flex flex-col gap-5">
-
-          {/* Section label */}
           <p
             className="text-xs font-black uppercase tracking-widest text-center"
             style={{ color: "var(--color-muted-foreground)", fontFamily: "var(--font-display)" }}
           >
-            Choose how to join
+            Choose a method
           </p>
 
-          {/* OAuth error from redirect */}
           {oauthError && (
             <div
               role="alert"
@@ -146,25 +133,25 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             />
           </div>
 
-          {/* ── Method 2 & 3: Email/Password + Guest ── */}
+          {/* ── Method 2: Email/Password ── */}
           <div className="flex flex-col gap-2">
             <p
               className="text-xs font-black uppercase tracking-wide"
               style={{ fontFamily: "var(--font-display)" }}
             >
-              ✉️ With Email or Guest
+              ✉️ With Email
             </p>
-            <EmailAuthForm redirectTo={params.redirectedFrom ?? "/"} mode="signin" />
+            <EmailAuthForm redirectTo={params.redirectedFrom ?? "/"} mode="signup" />
           </div>
 
-          {/* ── Go to Register ── */}
+          {/* ── Go to Login ── */}
           <p className="text-center text-sm font-bold mt-2">
-            Don't have an account?{" "}
+            Already have an account?{" "}
             <Link
-              href="/register"
+              href="/login"
               className="underline underline-offset-4 hover:text-[var(--color-primary)] transition-colors"
             >
-              Sign up
+              Sign in
             </Link>
           </p>
         </div>
@@ -174,31 +161,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           className="text-xs text-center leading-relaxed px-2"
           style={{ color: "var(--color-muted-foreground)" }}
         >
-          By signing in, you agree to use this platform fairly.
-          <br />
-          No spam. One real account per person.
+          By creating an account, you agree to our Terms of Service.
         </p>
-
-        {/* ───── Feature highlights ───── */}
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { icon: "🔒", label: "Secure Drawing" },
-            { icon: "⚡", label: "Real-time" },
-            { icon: "📱", label: "Mobile-first" },
-          ].map(({ icon, label }) => (
-            <div key={label} className="neo-card p-3 text-center">
-              <div className="text-xl mb-1" aria-hidden="true">
-                {icon}
-              </div>
-              <p
-                className="text-xs font-bold"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                {label}
-              </p>
-            </div>
-          ))}
-        </div>
       </div>
     </main>
   );

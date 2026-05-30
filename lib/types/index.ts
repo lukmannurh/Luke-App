@@ -19,6 +19,7 @@ export interface User {
   username: string;
   avatar_url: string | null;
   created_at: string;
+  credits: number;
 }
 
 export interface Room {

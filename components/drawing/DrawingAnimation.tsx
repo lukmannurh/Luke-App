@@ -67,7 +67,6 @@ export function DrawingAnimation({
 
     const ensureWinners = async () => {
       let finalWinners = [...pendingWinnersRef.current];
-      // Ensure we have all expected winners before starting the sequence
       const expectedWinners = Math.min(totalWinners, participantCount);
       
       if (finalWinners.length < expectedWinners && participantCount > 0) {
@@ -89,7 +88,6 @@ export function DrawingAnimation({
     };
 
     const runAnimation = async () => {
-      // Small delay to allow realtime events to arrive first
       await new Promise(r => setTimeout(r, 500));
       if (isCancelled) return;
       
@@ -97,7 +95,6 @@ export function DrawingAnimation({
       const sortedWinners = w.sort((a, b) => a.sequence - b.sequence);
       
       if (totalWinners > 5) {
-        // MASSIVE 3-SECOND SPIN FOR >5 WINNERS
         setPhase("spinning");
         const spinEnd = Date.now() + 3000;
         while (Date.now() < spinEnd) {
@@ -108,13 +105,12 @@ export function DrawingAnimation({
         if (isCancelled) return;
         setWinners(sortedWinners);
         setPhase("done");
+        if (onComplete) onComplete();
         router.refresh();
       } else {
-        // SEQUENTIAL SLOT MACHINE FOR <= 5 WINNERS
         for (let i = 0; i < sortedWinners.length; i++) {
           if (isCancelled) return;
           
-          // Explicitly track the correct winner index
           setCurrentWinnerIndex(i);
           setPhase("spinning");
           
@@ -142,6 +138,7 @@ export function DrawingAnimation({
         if (isCancelled) return;
         setWinners(sortedWinners);
         setPhase("done");
+        if (onComplete) onComplete();
         router.refresh();
       }
     };
@@ -150,8 +147,9 @@ export function DrawingAnimation({
 
     return () => {
       isCancelled = true;
+      animationStartedRef.current = false;
     };
-  }, [roomId, totalWinners, participantCount, router]);
+  }, [roomId, totalWinners, participantCount, router, onComplete]);
 
   if (phase === "done") {
     return (

@@ -77,6 +77,23 @@ export async function createRoom(
   const { title, description, minNumber, maxNumber, deadline, totalWinners } =
     result.data;
 
+  // 1. Fetch user credits
+  const { data: userRecord, error: userError } = await supabase
+    .from("users")
+    .select("credits")
+    .eq("id", userId)
+    .single();
+
+  if (userError || !userRecord) {
+    throw internalError("Failed to verify user profile.");
+  }
+  
+  // 2. Check credits
+  if (userRecord.credits < 10) {
+    throw forbiddenError("Insufficient credits. Cost is 10 credits.");
+  }
+
+  // 3. Insert Room
   const { data: room, error } = await supabase
     .from("rooms")
     .insert({
@@ -96,6 +113,19 @@ export async function createRoom(
     logger.error("[rooms.service] createRoom DB error", error ?? undefined);
     throw internalError("Failed to create room. Please try again.");
   }
+
+  // 4. Deduct 10 credits
+  await (supabase.from("users") as any)
+    .update({ credits: userRecord.credits - 10 })
+    .eq("id", userId);
+    
+  // 5. Log transaction
+  await (supabase.from("transactions") as any)
+    .insert({
+      user_id: userId,
+      amount: -10,
+      description: "Create Room",
+    });
 
   logger.info("[rooms.service] Room created", {
     roomId: room.id,

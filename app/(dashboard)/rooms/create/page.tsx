@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CreateRoomForm } from "@/components/rooms/CreateRoomForm";
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Create Room — Giveaway App",
@@ -10,7 +12,24 @@ export const metadata: Metadata = {
 /**
  * Create Room page — Server Component (form is a Client Component).
  */
-export default function CreateRoomPage() {
+export default async function CreateRoomPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const { data: profileData } = await supabase
+    .from("users")
+    .select("credits")
+    .eq("id", user.id)
+    .single();
+
+  const profile = profileData as any;
+
+  const credits = profile?.credits ?? 0;
+  
   return (
     <div className="max-w-lg mx-auto">
       {/* Breadcrumb */}
@@ -47,7 +66,20 @@ export default function CreateRoomPage() {
 
       {/* Form */}
       <div className="neo-card p-6">
-        <CreateRoomForm />
+        {credits < 10 ? (
+          <div className="bg-orange-100 border-2 border-orange-500 p-4 text-center">
+            <p className="font-bold text-orange-800">Insufficient Credits</p>
+            <p className="text-sm mt-1">You need at least 10 credits to create a room. You currently have {credits} credits.</p>
+          </div>
+        ) : (
+          <>
+            <div className="mb-6 p-4 border-2 border-[var(--color-border)] bg-[var(--color-muted)] flex justify-between items-center">
+              <span className="font-bold">Creation Cost:</span>
+              <span className="font-black text-xl text-red-600">-10 Credits</span>
+            </div>
+            <CreateRoomForm />
+          </>
+        )}
       </div>
     </div>
   );

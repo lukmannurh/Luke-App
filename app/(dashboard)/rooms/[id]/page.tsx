@@ -120,6 +120,9 @@ export default async function RoomDetailPage({ params }: PageProps) {
 
         {/* Meta row */}
         <div className="mt-4 flex flex-wrap gap-2">
+          <span className="neo-badge bg-[var(--color-accent)] text-xs border border-[var(--color-border)]">
+            💰 Prize Pool: 10 Credits
+          </span>
           <span className="neo-badge neo-badge-muted text-xs">
             🔢 {room.min_number}–{room.max_number}
           </span>

@@ -113,6 +113,15 @@ export async function executeDrawing(
       })
       .eq("id", roomId);
 
+    // Refund Logic: Empty Room
+    if (room.host_id) {
+      const { data: host } = await supabase.from("users").select("credits").eq("id", room.host_id).single();
+      if (host) {
+        await (supabase.from("users") as any).update({ credits: host.credits + 10 }).eq("id", room.host_id);
+        await (supabase.from("transactions") as any).insert({ user_id: room.host_id, amount: 10, description: "Refund: Empty Room" });
+      }
+    }
+
     await broadcastDrawingEvents(supabase, roomId, [], 0);
 
     return {
@@ -170,6 +179,18 @@ export async function executeDrawing(
       .update({ state: "finished", drawing_completed_at: new Date().toISOString(), drawing_participant_count: participants.length })
       .eq("id", roomId);
     throw internalError("Failed to record drawing results.");
+  }
+
+  // Distribute Prize Pool
+  const prizePerWinner = Math.floor(10 / winnerRecords.length);
+  if (prizePerWinner > 0) {
+    for (const w of winnerRecords) {
+      const { data: wUser } = await supabase.from("users").select("credits").eq("id", w.user_id).single();
+      if (wUser) {
+        await (supabase.from("users") as any).update({ credits: wUser.credits + prizePerWinner }).eq("id", w.user_id);
+        await (supabase.from("transactions") as any).insert({ user_id: w.user_id, amount: prizePerWinner, description: "Won Giveaway" });
+      }
+    }
   }
 
   // ── Step 6: Finalize room ───────────────────────────────────────

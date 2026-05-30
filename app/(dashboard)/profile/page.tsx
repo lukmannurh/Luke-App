@@ -1,238 +1,199 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { getUserProfile } from "@/lib/services/users.service";
-import { formatTimestamp } from "@/lib/utils/date";
+import { UpdateUsernameForm } from "@/components/profile/UpdateUsernameForm";
+import { UpdatePasswordForm } from "@/components/profile/UpdatePasswordForm";
+import { AvatarUpload } from "@/components/profile/AvatarUpload";
+import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
 
-export const metadata: Metadata = {
-  title: "My Profile — Giveaway App",
-  description: "View your giveaway participation history, wins, and stats.",
+export const metadata = {
+  title: "Profile | Giveaway App",
 };
 
-/**
- * Profile Page — Server Component.
- * Shows the logged-in user's profile, stats, and participation history.
- * Redirects to /login if not authenticated.
- */
 export default async function ProfilePage() {
   const supabase = await createClient();
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!authUser) redirect("/login");
-
-  const profile = await getUserProfile(supabase, authUser.id).catch(() => null);
-
-  if (!profile) {
-    return (
-      <div className="neo-card p-8 text-center max-w-md mx-auto">
-        <p className="text-xl" aria-hidden="true">😕</p>
-        <p className="font-bold mt-2">Could not load your profile. Please refresh.</p>
-      </div>
-    );
+  if (!user) {
+    redirect("/login");
   }
 
-  const winRate =
-    profile.stats.totalParticipations > 0
-      ? Math.round(
-          (profile.stats.totalWins / profile.stats.totalParticipations) * 100
-        )
-      : 0;
+  // Fetch user profile data
+  const { data } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+  const profile: any = data;
+
+  if (!profile) {
+    // If not found in users table, redirect to login
+    redirect("/login");
+  }
+
+  // Fetch statistics
+  // 1. Total rooms hosted
+  const { count: hostedCount } = await supabase
+    .from("rooms")
+    .select("id", { count: "exact", head: true })
+    .eq("host_id", user.id);
+
+  // 2. Total participations
+  const { count: participationsCount } = await supabase
+    .from("participants")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id);
+
+  // 3. Total wins
+  const { count: winsCount } = await supabase
+    .from("winners")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id);
+
+  // Fetch participation history (rooms participated in)
+  const { data: participations } = await supabase
+    .from("participants")
+    .select(`
+      joined_at,
+      selected_number,
+      rooms (
+        id,
+        title,
+        state,
+        created_at
+      )
+    `)
+    .eq("user_id", user.id)
+    .limit(10);
+
+  // Fetch transactions
+  const { data: transactions } = await supabase
+    .from("transactions")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(10);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      {/* Profile header */}
-      <div className="neo-card p-6">
-        <div className="flex items-center gap-4">
-          {/* Avatar */}
-          <div className="relative w-16 h-16 flex-shrink-0 border-3 border-[var(--color-border)]">
-            {profile.avatar_url ? (
-              <Image
-                src={profile.avatar_url}
-                alt={profile.username}
-                fill
-                sizes="64px"
-                className="object-cover"
-              />
-            ) : (
-              <div
-                className="w-full h-full flex items-center justify-center text-2xl font-black"
-                style={{ background: "var(--color-accent)" }}
-                aria-hidden="true"
-              >
-                {profile.username.charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
-
-          {/* Name + email */}
-          <div className="flex-1 min-w-0">
-            <h1
-              className="text-2xl font-black truncate"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              {profile.username}
-            </h1>
-            <p className="text-sm truncate" style={{ color: "var(--color-muted-foreground)" }}>
-              {profile.email}
-            </p>
-          </div>
-        </div>
+    <div className="max-w-4xl mx-auto flex flex-col gap-8 w-full pb-8">
+      <div>
+        <h1 className="text-3xl font-black mb-2" style={{ fontFamily: "var(--font-display)" }}>Your Profile</h1>
+        <p className="text-[var(--color-muted-foreground)] text-sm font-medium">Manage your account and view your giveaway history.</p>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-3 gap-3" aria-label="Your statistics">
-        <StatCard
-          value={profile.stats.totalParticipations}
-          label="Joined"
-          emoji="🎫"
-          variant="default"
-        />
-        <StatCard
-          value={profile.stats.totalWins}
-          label="Won"
-          emoji="🏆"
-          variant="accent"
-        />
-        <StatCard
-          value={profile.stats.totalRoomsHosted}
-          label="Hosted"
-          emoji="👑"
-          variant="default"
-        />
-      </div>
-
-      {/* Win rate */}
-      {profile.stats.totalParticipations > 0 && (
-        <div
-          className="neo-card p-4 flex items-center gap-3"
-          style={{ background: "var(--color-muted)" }}
-        >
-          <span className="text-2xl" aria-hidden="true">🎯</span>
-          <div>
-            <p className="font-black text-lg" style={{ fontFamily: "var(--font-display)" }}>
-              {winRate}% win rate
-            </p>
-            <p className="text-xs" style={{ color: "var(--color-muted-foreground)" }}>
-              {profile.stats.totalWins} win{profile.stats.totalWins !== 1 ? "s" : ""} from{" "}
-              {profile.stats.totalParticipations} participation
-              {profile.stats.totalParticipations !== 1 ? "s" : ""}
-            </p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Left Column: Forms */}
+        <div className="md:col-span-2 flex flex-col gap-6">
+          <AvatarUpload currentAvatar={profile.avatar_url} userId={user.id} />
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <UpdateUsernameForm currentUsername={profile.username} />
+            <UpdatePasswordForm />
           </div>
-        </div>
-      )}
 
-      {/* Participation history */}
-      <section aria-label="Participation history">
-        <h2
-          className="text-xl font-black mb-3"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
-          Participation History
-        </h2>
-
-        {profile.participations.length === 0 ? (
-          <div className="neo-card p-8 text-center">
-            <div className="text-4xl mb-3" aria-hidden="true">🎪</div>
-            <p className="font-bold" style={{ color: "var(--color-muted-foreground)" }}>
-              You haven't joined any giveaways yet.
-            </p>
-            <Link href="/" className="neo-btn neo-btn-primary mt-4 inline-flex">
-              Browse Rooms
-            </Link>
+          {/* Email Info */}
+          <div className="neo-card p-6 flex flex-col gap-2">
+            <h2 className="text-xl font-black" style={{ fontFamily: "var(--font-display)" }}>
+              Account Email
+            </h2>
+            <input
+              type="text"
+              readOnly
+              value={profile.email}
+              className="w-full px-3 py-3 text-sm font-medium border-3 border-[var(--color-border)] bg-[var(--color-muted)] outline-none opacity-70 cursor-not-allowed"
+              style={{
+                boxShadow: "2px 2px 0px var(--color-border)",
+                minHeight: "44px",
+              }}
+            />
+            <p className="text-xs text-[var(--color-muted-foreground)] mt-1">Your email cannot be changed.</p>
           </div>
-        ) : (
-          <ol className="space-y-2" aria-label="Your giveaway participation history">
-            {profile.participations.map((p) => (
-              <li key={`${p.roomId}-${p.selectedNumber}`}>
-                <Link
-                  href={`/rooms/${p.roomId}`}
-                  id={`profile-history-${p.roomId}`}
-                  className="block neo-card p-4 neo-card-hover"
-                  aria-label={`${p.roomTitle} — ${p.isWinner ? "You won!" : "Didn't win"}`}
-                >
-                  <div className="flex items-center gap-3 flex-wrap">
-                    {/* Winner indicator */}
-                    <span
-                      className="text-xl flex-shrink-0"
-                      aria-hidden="true"
-                    >
-                      {p.isWinner ? "🏆" : "🎫"}
+
+          {/* Transaction History */}
+          <div className="neo-card p-6 flex flex-col gap-4">
+            <h2 className="text-xl font-black" style={{ fontFamily: "var(--font-display)" }}>
+              Transaction Ledger
+            </h2>
+            <div className="flex flex-col gap-2">
+              {transactions && transactions.length > 0 ? (
+                transactions.map((t: any) => (
+                  <div key={t.id} className="flex justify-between items-center p-3 border-2 border-[var(--color-border)] bg-[var(--color-background)]">
+                    <div className="flex flex-col">
+                      <span className="font-bold text-sm">{t.description}</span>
+                      <span className="text-xs text-[var(--color-muted-foreground)]">
+                        {formatDistanceToNow(new Date(t.created_at), { addSuffix: true })}
+                      </span>
+                    </div>
+                    <span className={`font-black ${t.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {t.amount > 0 ? '+' : ''}{t.amount}
                     </span>
-
-                    {/* Title + meta */}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold truncate">{p.roomTitle}</p>
-                      <p
-                        className="text-xs"
-                        style={{ color: "var(--color-muted-foreground)" }}
-                      >
-                        {formatTimestamp(p.joinedAt)} · picked #{p.selectedNumber}
-                      </p>
-                    </div>
-
-                    {/* Status badges */}
-                    <div className="flex gap-2 flex-shrink-0">
-                      {p.isWinner && (
-                        <span className="neo-badge neo-badge-accent text-xs">Winner!</span>
-                      )}
-                      {p.roomState === "active" && (
-                        <span className="neo-badge neo-badge-active text-xs">Active</span>
-                      )}
-                      {p.roomState === "finished" && !p.isWinner && (
-                        <span className="neo-badge neo-badge-muted text-xs">Ended</span>
-                      )}
-                      {p.roomState === "drawing" && (
-                        <span className="neo-badge neo-badge-drawing text-xs">Drawing</span>
-                      )}
-                    </div>
                   </div>
-                </Link>
-              </li>
-            ))}
-          </ol>
-        )}
-      </section>
-    </div>
-  );
-}
+                ))
+              ) : (
+                <p className="text-sm text-[var(--color-muted-foreground)] text-center py-4">No transactions yet.</p>
+              )}
+            </div>
+          </div>
+        </div>
 
-// ── Stat Card sub-component ────────────────────────────────────────────────
+        {/* Right Column: Stats & History */}
+        <div className="flex flex-col gap-6">
+          {/* Stats */}
+          <div className="neo-card p-6 flex flex-col gap-4">
+            <h2 className="text-xl font-black" style={{ fontFamily: "var(--font-display)" }}>
+              Statistics
+            </h2>
+            <div className="flex flex-col gap-3">
+              <div className="flex justify-between items-center border-b-2 border-[var(--color-border)] pb-2">
+                <span className="text-sm font-bold">Participations</span>
+                <span className="text-xl font-black">{participationsCount || 0}</span>
+              </div>
+              <div className="flex justify-between items-center border-b-2 border-[var(--color-border)] pb-2">
+                <span className="text-sm font-bold">Total Wins</span>
+                <span className="text-xl font-black text-green-600">{winsCount || 0}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-bold">Rooms Hosted</span>
+                <span className="text-xl font-black">{hostedCount || 0}</span>
+              </div>
+            </div>
+          </div>
 
-function StatCard({
-  value,
-  label,
-  emoji,
-  variant,
-}: {
-  value: number;
-  label: string;
-  emoji: string;
-  variant: "default" | "accent";
-}) {
-  return (
-    <div
-      className="neo-card p-4 text-center"
-      style={{
-        background: variant === "accent" ? "var(--color-accent)" : undefined,
-      }}
-    >
-      <div className="text-2xl" aria-hidden="true">{emoji}</div>
-      <div
-        className="text-3xl font-black tabular-nums mt-1"
-        style={{ fontFamily: "var(--font-display)" }}
-        aria-label={`${value} ${label}`}
-      >
-        {value}
-      </div>
-      <div
-        className="text-xs font-bold mt-0.5"
-        style={{ color: "var(--color-muted-foreground)" }}
-      >
-        {label}
+          {/* History */}
+          <div className="neo-card p-6 flex flex-col gap-4">
+            <h2 className="text-xl font-black" style={{ fontFamily: "var(--font-display)" }}>
+              Recent Activity
+            </h2>
+            <div className="flex flex-col gap-3">
+              {participations && participations.length > 0 ? (
+                participations.map((p: any, i: number) => {
+                  const room = p.rooms;
+                  if (!room) return null;
+                  return (
+                    <Link 
+                      key={i} 
+                      href={`/rooms/${room.id}`}
+                      className="block p-3 border-2 border-[var(--color-border)] hover:bg-[var(--color-muted)] transition-colors"
+                    >
+                      <div className="flex justify-between items-start mb-1">
+                        <span className="font-bold text-sm truncate max-w-[150px]" title={room.title}>{room.title}</span>
+                        <span className="text-xs uppercase font-bold px-2 py-0.5 bg-[var(--color-accent)] border border-[var(--color-border)]">
+                          {room.state}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center text-xs text-[var(--color-muted-foreground)]">
+                        <span>Number: <strong className="text-black">#{p.selected_number}</strong></span>
+                        <span>{formatDistanceToNow(new Date(p.joined_at), { addSuffix: true })}</span>
+                      </div>
+                    </Link>
+                  )
+                })
+              ) : (
+                <p className="text-sm text-[var(--color-muted-foreground)] text-center py-4">No recent activity.</p>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

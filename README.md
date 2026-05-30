@@ -1,67 +1,115 @@
-# Community Giveaway Platform
+<div align="center">
+  <img src="public/icon-192.png" alt="Giveaway App Logo" width="120" />
 
-A mobile-first web application designed for online hobby and entertainment communities to host fair, transparent giveaways. The platform features automatic server-side drawings using cryptographically secure randomization, real-time sync, and a bold neobrutalist visual design.
+  # 🎁 Giveaway App
+  
+  **A Neobrutalist Community Giveaway Platform**
 
-## Features
-- **Google OAuth Authentication:** Secure and seamless sign-in via Supabase Auth.
-- **Fair Drawings:** Cryptographically secure server-side RNG (`crypto.randomInt`).
-- **Real-time Synchronization:** Live drawing animations and state updates across clients.
-- **Adaptive UI:** Mobile-optimized number selection (grid, dropdown, or input depending on scale).
-- **Automated Deadlines:** Hands-free drawing via Vercel Cron jobs.
-- **Multi-Winner Support:** Select multiple winners in a single giveaway.
-- **Neobrutalism Design:** High-contrast, playful, and bold aesthetics.
+  *Fair, transparent, and mobile-first giveaways for online communities.*
 
-## Tech Stack
-- **Framework:** Next.js 14 (App Router)
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS + Custom Neobrutalism Tokens
-- **Components:** shadcn/ui
-- **Database:** Supabase PostgreSQL
-- **Realtime & Auth:** Supabase Realtime, Supabase Auth
-- **Deployment:** Vercel
+  [![Next.js](https://img.shields.io/badge/Next.js-16.2-black?logo=next.js&logoColor=white)](#)
+  [![Supabase](https://img.shields.io/badge/Supabase-Database_%26_Auth-3ECF8E?logo=supabase&logoColor=white)](#)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-Neobrutalism-38B2AC?logo=tailwind-css&logoColor=white)](#)
+</div>
 
-## Environment Variables
+<br />
 
-Copy the `.env.example` file to `.env.local` and configure the following variables:
+## 🌟 Overview
 
-```env
-# Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+The **Community Giveaway Platform** is a modern, mobile-first web application designed for online hobby and entertainment communities (anime, gaming, sports, Discord/WhatsApp groups). It allows users to create giveaway rooms, pick lucky numbers, and conduct secure server-side random drawings.
 
-# Cron Secret for automated drawings
-CRON_SECRET=your_secure_cron_secret
+Built with an aggressive, high-contrast **Neobrutalism** aesthetic, it focuses on transparency, fairness, and a snappy user experience.
+
+---
+
+## ✨ Features
+
+- **Multi-Method Authentication**: Secure sign-up/login via Google OAuth, standard Email & Password, or frictionless **Guest Access**.
+- **Credits Economy**: Verified users get a daily allowance and starting balance. Room creation costs credits, preventing spam.
+- **Fair Random Drawing**: Uses cryptographically secure RNG (`crypto.randomInt`) on the server to prevent cheating. Drawings are completely automated via Vercel Cron!
+- **Neobrutalism UI**: Bold borders, hard shadows, vibrant colors, and high contrast. Looks amazing on mobile and desktop.
+- **Dark & Light Mode**: Seamless theme toggling via `next-themes` that perfectly respects the brutalist aesthetic.
+- **Progressive Web App (PWA)**: Installable directly to your mobile home screen (powered by `@serwist/next`).
+- **Profile Management & Avatar Compression**: Manage your account and upload avatars with built-in client-side image compression.
+- **Admin Dashboard**: Real-time analytics and platform metrics restricted to admin roles.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
+- **Database, Auth & Storage**: [Supabase](https://supabase.com/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) with custom Neobrutalism tokens
+- **PWA Integration**: [Serwist](https://serwist.build/)
+- **Theme Management**: `next-themes`
+- **Icons**: Custom SVG
+
+---
+
+## 🚀 Local Development Setup
+
+Follow these steps to run the application locally on your machine.
+
+### 1. Prerequisites
+
+- **Node.js** (v18 or higher)
+- **npm** or **yarn**
+- A [Supabase](https://supabase.com) account
+
+### 2. Clone the Repository
+
+```bash
+git clone https://github.com/yourusername/giveaway-app.git
+cd giveaway-app
 ```
 
-## Local Development
+### 3. Install Dependencies
 
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
-2. **Set up Supabase:**
-   - Create a new project in [Supabase](https://supabase.com).
-   - Set up Google OAuth in the Authentication settings.
-   - Run the SQL schema found in `specs/design.md` to create the tables (`users`, `rooms`, `participants`, `winners`).
-   - Enable Row Level Security (RLS) policies as specified.
+### 4. Setup Supabase
 
-3. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
-   The app will be available at [http://localhost:3000](http://localhost:3000).
+1. Create a new project on Supabase.
+2. Ensure you have the `users`, `rooms`, `participants`, `winners`, and `transactions` tables configured according to the database schema.
+3. Enable Email/Password and Google OAuth authentication providers.
+4. Create a public storage bucket named `avatars`.
+5. Set up the `pg_cron` extension for the daily credits bonus.
 
-## Deployment
+### 5. Environment Variables
 
-### 1. Supabase
-- Ensure your production database is fully set up with the correct schema and RLS policies.
-- Configure your OAuth callback URLs in Supabase for your production domain.
+Create a `.env.local` file in the root directory and populate it with your Supabase credentials:
 
-### 2. Vercel
-- Push the repository to GitHub.
-- Import the project into [Vercel](https://vercel.com).
-- Add all required environment variables in the Vercel project settings.
-- The `vercel.json` file is already configured to trigger the cron job `GET /api/cron/check-deadlines`. Make sure the `CRON_SECRET` matches your Vercel settings.
-- Deploy!
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Generate a random 32-character string for the cron token
+CRON_SECRET=your_super_secret_cron_token_here
+```
+
+> **Warning:** Never commit your `.env.local` or expose your `SUPABASE_SERVICE_ROLE_KEY` to the public.
+
+### 6. Run the Development Server
+
+```bash
+npm run dev
+```
+
+The application will be available at [http://localhost:3000](http://localhost:3000).
+
+---
+
+## 🛡️ Security & Architecture
+
+- **Row Level Security (RLS)** ensures data is isolated.
+- **Server-Side Rendering** protects sensitive routes and logic.
+- **Optimistic Locking** on the database prevents double-drawing race conditions.
+
+---
+
+<div align="center">
+  <i>Created with ❤️ by Lil Luke Son of Owi</i>
+</div>

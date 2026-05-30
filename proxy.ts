@@ -43,6 +43,7 @@ export async function proxy(request: NextRequest) {
   // Define public routes — everything else requires auth
   const isPublicRoute =
     pathname === "/login" ||
+    pathname === "/register" ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/cron") ||
     pathname.startsWith("/_next") ||
@@ -56,8 +57,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (user && pathname === "/login") {
-    // Already authenticated user visiting login → redirect to home
+  if (user && (pathname === "/login" || pathname === "/register")) {
+    // Already authenticated user visiting login/register → redirect to home
     const homeUrl = request.nextUrl.clone();
     homeUrl.pathname = "/";
     return NextResponse.redirect(homeUrl);

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { UserMenu } from "@/components/auth/UserMenu";
 import { SignInButton } from "@/components/auth/SignInButton";
 import type { User } from "@/lib/types";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 /**
  * Header — Server Component.
@@ -32,6 +33,7 @@ export async function Header() {
         username: authUser.user_metadata?.full_name || authUser.email?.split("@")[0] || "User",
         avatar_url: authUser.user_metadata?.avatar_url || null,
         created_at: authUser.created_at,
+        credits: authUser.user_metadata?.is_guest ? 20 : 100,
       };
     }
   }
@@ -79,15 +81,29 @@ export async function Header() {
           <Link href="/rooms/history" className="neo-btn neo-btn-ghost neo-btn-sm" id="nav-history">
             History
           </Link>
+          {(profile as any)?.role === "admin" && (
+            <Link href="/admin" className="neo-btn neo-btn-primary neo-btn-sm ml-2" id="nav-admin">
+              Admin
+            </Link>
+          )}
         </nav>
 
         {/* Right side */}
         <div className="flex items-center gap-2">
           {profile ? (
-            <UserMenu user={profile} />
+            <>
+              <div className="hidden sm:flex items-center gap-1 font-bold text-sm bg-[var(--color-muted)] px-3 py-1.5 border-2 border-[var(--color-border)]" style={{ boxShadow: "2px 2px 0px var(--color-border)" }}>
+                <span>💰</span>
+                <span>{profile.credits} Credits</span>
+              </div>
+              <UserMenu user={profile} />
+            </>
           ) : (
             <SignInButton />
           )}
+          <div className="ml-2">
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </header>
