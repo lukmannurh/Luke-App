@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getRooms } from "@/lib/services/rooms.service";
+import { resolveExpiredRooms } from "@/lib/services/drawing.service";
 import { RoomList } from "@/components/rooms/RoomList";
 
 import { Suspense } from "react";
@@ -34,6 +35,11 @@ async function HeroActions() {
 
 async function RoomsWrapper() {
   const supabase = await createClient();
+  
+  // Lazy Evaluation: Sweep and draw expired rooms before rendering
+  const supabaseAdmin = createAdminClient();
+  await resolveExpiredRooms(supabaseAdmin);
+
   const initialData = await getRooms(supabase, { page: 1, limit: 12 }).catch(
     () => ({
       rooms: [],

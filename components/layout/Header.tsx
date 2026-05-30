@@ -4,6 +4,7 @@ import { UserMenu } from "@/components/auth/UserMenu";
 import { SignInButton } from "@/components/auth/SignInButton";
 import type { User } from "@/lib/types";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { InstallPWA } from "@/components/ui/InstallPWA";
 
 /**
  * Header — Server Component.
@@ -101,6 +102,7 @@ export async function Header() {
           ) : (
             <SignInButton />
           )}
+          <InstallPWA />
           <div className="ml-2">
             <ThemeToggle />
           </div>

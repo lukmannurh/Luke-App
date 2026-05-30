@@ -308,3 +308,43 @@ async function broadcastDrawingEvents(
     await supabase.removeChannel(channel);
   }
 }
+
+// ──────────────────────────────────────────────
+// resolveExpiredRooms (Lazy Evaluation / Cron Fallback)
+// ──────────────────────────────────────────────
+
+/**
+ * Sweeps the database for any 'active' rooms that have passed their deadline
+ * and securely executes the drawing.
+ * Used for Lazy Evaluation during high-traffic page renders to bypass Vercel cron limits.
+ * 
+ * @param supabaseAdmin - The admin/service-role client
+ */
+export async function resolveExpiredRooms(supabaseAdmin: SupabaseDB): Promise<void> {
+  try {
+    const { data: expiredRoomsRaw, error } = await supabaseAdmin
+      .from("rooms")
+      .select("id")
+      .eq("state", "active")
+      .lte("deadline", new Date().toISOString());
+
+    if (error || !expiredRoomsRaw || expiredRoomsRaw.length === 0) {
+      return;
+    }
+
+    const expiredRooms = expiredRoomsRaw as any[];
+
+    // Process each room without blocking others
+    await Promise.allSettled(
+      expiredRooms.map(async (room) => {
+        try {
+          await executeDrawing(supabaseAdmin, room.id);
+        } catch (e) {
+          logger.error("[drawing.service] Failed to resolve expired room", e, { roomId: room.id });
+        }
+      })
+    );
+  } catch (err) {
+    logger.error("[drawing.service] resolveExpiredRooms failed", err);
+  }
+}

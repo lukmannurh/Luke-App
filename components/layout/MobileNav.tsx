@@ -14,8 +14,13 @@ const NAV_ITEMS = [
  * MobileNav — bottom navigation bar for mobile viewports.
  * Only visible on small screens (md:hidden).
  */
-export function MobileNav() {
+export function MobileNav({ isAdmin }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+
+  const activeNavItems = [...NAV_ITEMS];
+  if (isAdmin) {
+    activeNavItems.push({ href: "/admin", label: "Admin", icon: "🛡️", id: "mobile-nav-admin" });
+  }
 
   return (
     <nav
@@ -28,7 +33,7 @@ export function MobileNav() {
       aria-label="Mobile navigation"
     >
       <ul className="flex items-stretch" role="list">
-        {NAV_ITEMS.map((item) => {
+        {activeNavItems.map((item) => {
           const isActive =
             item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
           return (

@@ -1,16 +1,32 @@
 import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { Footer } from "@/components/layout/Footer";
+import { createClient } from "@/lib/supabase/server";
 
 /**
  * Dashboard layout — wraps all authenticated pages.
  * Auth protection is handled by proxy.ts middleware.
  */
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  let isAdmin = false;
+  if (user) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    if (profile?.role === "admin") {
+      isAdmin = true;
+    }
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -18,7 +34,7 @@ export default function DashboardLayout({
         {children}
       </main>
       <Footer />
-      <MobileNav />
+      <MobileNav isAdmin={isAdmin} />
     </div>
   );
 }
