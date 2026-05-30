@@ -22,7 +22,7 @@ export default async function DashboardLayout({
       .select("role")
       .eq("id", user.id)
       .single();
-    if (profile?.role === "admin") {
+    if ((profile as any)?.role === "admin") {
       isAdmin = true;
     }
   }
