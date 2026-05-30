@@ -3,7 +3,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 
 // ──────────────────────────────────────────────
-// GET /api/cron/check-deadlines
+// GET /api/cron/draw
 // Vercel Cron Job — runs every minute.
 // Finds all active rooms whose deadline has passed and triggers drawing.
 //
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
   const expectedSecret = process.env.CRON_SECRET;
 
   if (!expectedSecret) {
-    logger.error("[GET /api/cron/check-deadlines] CRON_SECRET not configured");
+    logger.error("[GET /api/cron/draw] CRON_SECRET not configured");
     return NextResponse.json(
       { error: { code: "INTERNAL_ERROR", message: "Server configuration error." } },
       { status: 500 }
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (!authHeader || authHeader !== `Bearer ${expectedSecret}`) {
-    logger.warn("[GET /api/cron/check-deadlines] Unauthorized cron attempt");
+    logger.warn("[GET /api/cron/draw] Unauthorized cron attempt");
     return NextResponse.json(
       { error: { code: "UNAUTHORIZED", message: "Invalid or missing authorization." } },
       { status: 401 }
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
   const expiredRooms = expiredRoomsRaw as any[];
 
   if (queryError) {
-    logger.error("[GET /api/cron/check-deadlines] Query error", queryError);
+    logger.error("[GET /api/cron/draw] Query error", queryError);
     return NextResponse.json(
       { error: { code: "INTERNAL_ERROR", message: "Failed to query expired rooms." } },
       { status: 500 }
@@ -56,11 +56,11 @@ export async function GET(request: NextRequest) {
   const rooms = expiredRooms ?? [];
 
   if (rooms.length === 0) {
-    logger.info("[GET /api/cron/check-deadlines] No expired rooms found");
+    logger.info("[GET /api/cron/draw] No expired rooms found");
     return NextResponse.json({ triggered: 0, results: [] }, { status: 200 });
   }
 
-  logger.info("[GET /api/cron/check-deadlines] Found expired rooms", {
+  logger.info("[GET /api/cron/draw] Found expired rooms", {
     count: rooms.length,
     roomIds: rooms.map((r) => r.id),
   });
@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
     if (result.status === "fulfilled") {
       return { roomId, success: true };
     } else {
-      logger.error("[GET /api/cron/check-deadlines] Draw failed for room", undefined, {
+      logger.error("[GET /api/cron/draw] Draw failed for room", undefined, {
         roomId,
         error: result.reason?.message,
       });
@@ -118,12 +118,12 @@ export async function GET(request: NextRequest) {
     .lt("drawing_completed_at", sevenDaysAgo);
 
   if (deleteError) {
-    logger.error("[GET /api/cron/check-deadlines] Failed to cleanup old rooms", deleteError);
+    logger.error("[GET /api/cron/draw] Failed to cleanup old rooms", deleteError);
   } else if (deletedRoomsCount && deletedRoomsCount > 0) {
-    logger.info(`[GET /api/cron/check-deadlines] Cleaned up ${deletedRoomsCount} old rooms`);
+    logger.info(`[GET /api/cron/draw] Cleaned up ${deletedRoomsCount} old rooms`);
   }
 
-  logger.info("[GET /api/cron/check-deadlines] Cron run complete", {
+  logger.info("[GET /api/cron/draw] Cron run complete", {
     triggered: rooms.length,
     succeeded,
     failed,

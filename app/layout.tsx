@@ -47,7 +47,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cn(inter.variable, spaceGrotesk.variable)} suppressHydrationWarning>
-      <head />
+      <head>
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      </head>
       <body className="antialiased min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)] transition-colors duration-300">
         <ThemeProvider
           attribute="class"

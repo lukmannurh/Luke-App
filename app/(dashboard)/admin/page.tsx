@@ -41,7 +41,30 @@ export default async function AdminPage() {
     
   const totalCredits = allProfiles?.reduce((acc: number, curr: any) => acc + (curr.credits || 0), 0) || 0;
 
+  // 4. Total Prize Distributed
+  const { data: prizeTransactions } = await supabaseAdmin
+    .from("transactions")
+    .select("amount")
+    .eq("description", "Won Giveaway");
+  const totalPrizeDistributed = prizeTransactions?.reduce((acc: number, curr: any) => acc + (curr.amount || 0), 0) || 0;
+
+  // 5. Recent Completed Draws
+  const { data: recentCompletedRooms } = await supabaseAdmin
+    .from("rooms")
+    .select("id, title, drawing_completed_at")
+    .eq("state", "finished")
+    .order("drawing_completed_at", { ascending: false })
+    .limit(5);
+
+  // 6. System Health (Overdue Rooms missed by cron)
+  const { count: overdueRoomsCount } = await supabaseAdmin
+    .from("rooms")
+    .select("*", { count: "exact", head: true })
+    .eq("state", "active")
+    .lte("deadline", new Date().toISOString());
+
   return (
+    <div className="flex flex-col gap-6">
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Metric: Users */}
       <div className="neo-card p-6 flex flex-col justify-between">
@@ -88,6 +111,56 @@ export default async function AdminPage() {
           </p>
         </div>
       </div>
+    </div>
+
+    {/* Row 2: More Metrics */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Metric: Total Prize Distributed */}
+      <div className="neo-card p-6 flex flex-col justify-between">
+        <h2 className="text-xl font-bold mb-4" style={{ fontFamily: "var(--font-display)" }}>
+          Prize Distributed
+        </h2>
+        <div>
+          <div className="text-5xl font-black text-[var(--color-primary)]">{totalPrizeDistributed}</div>
+          <p className="mt-4 text-sm font-medium text-[var(--color-muted-foreground)]">
+            Total credits awarded to giveaway winners.
+          </p>
+        </div>
+      </div>
+
+      {/* Metric: System Health */}
+      <div className="neo-card p-6 flex flex-col justify-between" style={{ borderColor: overdueRoomsCount && overdueRoomsCount > 0 ? "var(--color-destructive)" : "var(--color-border)" }}>
+        <h2 className="text-xl font-bold mb-4" style={{ fontFamily: "var(--font-display)" }}>
+          System Health
+        </h2>
+        <div>
+          <div className="text-5xl font-black" style={{ color: overdueRoomsCount && overdueRoomsCount > 0 ? "var(--color-destructive)" : "var(--color-success)" }}>
+            {overdueRoomsCount && overdueRoomsCount > 0 ? `${overdueRoomsCount} Overdue` : "Healthy"}
+          </div>
+          <p className="mt-4 text-sm font-medium text-[var(--color-muted-foreground)]">
+            Active rooms past their deadline (checks if Vercel Cron is running).
+          </p>
+        </div>
+      </div>
+
+      {/* Metric: Recent Draws */}
+      <div className="neo-card p-6 flex flex-col justify-between md:col-span-1">
+        <h2 className="text-xl font-bold mb-4" style={{ fontFamily: "var(--font-display)" }}>
+          Recent Draws
+        </h2>
+        <div className="flex flex-col gap-2">
+          {recentCompletedRooms && recentCompletedRooms.length > 0 ? (
+            recentCompletedRooms.map((r) => (
+              <div key={r.id} className="text-sm font-bold border-b-2 border-[var(--color-border)] pb-2 truncate">
+                {r.title}
+              </div>
+            ))
+          ) : (
+            <p className="text-sm font-medium text-[var(--color-muted-foreground)]">No recent draws.</p>
+          )}
+        </div>
+      </div>
+    </div>
     </div>
   );
 }
