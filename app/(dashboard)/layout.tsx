@@ -19,7 +19,8 @@ export default async function DashboardLayout({
   const { data: { user } } = await supabase.auth.getUser();
   let isAdmin = false;
   if (user) {
-    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single();
+    const { data } = await supabase.from('users').select('role').eq('id', user.id).single();
+    const profile = data as { role: string } | null;
     isAdmin = profile?.role === 'admin';
   }
   return (
