@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   robots: "noindex",
 };
 
+export const dynamic = "force-dynamic";
+
+
 interface RegisterPageProps {
   searchParams: Promise<{ redirectedFrom?: string; error?: string }>;
 }

@@ -12,6 +12,10 @@ export const metadata: Metadata = {
   description: "Browse completed giveaway rooms and see the winners.",
 };
 
+// Uses Supabase cookies — must be dynamic
+export const dynamic = "force-dynamic";
+
+
 const PAGE_SIZE = 20;
 
 interface PageProps {

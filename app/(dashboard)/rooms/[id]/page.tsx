@@ -13,6 +13,9 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+// Room data is user-specific and requires cookies — must be dynamic
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const supabase = await createClient();

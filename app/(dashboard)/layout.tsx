@@ -3,6 +3,10 @@ import { MobileNav } from "@/components/layout/MobileNav";
 import { Footer } from "@/components/layout/Footer";
 import { createClient } from "@/lib/supabase/server";
 
+// Layout fetches user role via Supabase cookies — must be dynamic
+export const dynamic = "force-dynamic";
+
+
 /**
  * Dashboard layout — wraps all authenticated pages.
  * Auth protection is handled by proxy.ts middleware.

@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
 import "@/app/globals.css";
-import { Space_Grotesk, Inter } from "next/font/google";
+import { Space_Grotesk, Archivo_Black } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
-const inter = Inter({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-sans",
 });
 
-const spaceGrotesk = Space_Grotesk({
+const archivoBlack = Archivo_Black({
   subsets: ["latin"],
+  weight: "400",
   variable: "--font-display",
 });
 
@@ -46,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn(inter.variable, spaceGrotesk.variable)} suppressHydrationWarning>
+    <html lang="en" className={cn(spaceGrotesk.variable, archivoBlack.variable)} suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>

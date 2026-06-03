@@ -45,7 +45,6 @@ export async function Header() {
       style={{
         background: "var(--color-background)",
         borderBottom: "3px solid var(--color-border)",
-        boxShadow: "0 3px 0px var(--color-border)",
       }}
     >
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
@@ -57,17 +56,17 @@ export async function Header() {
           aria-label="Giveaway App home"
         >
           <span
-            className="flex items-center justify-center w-8 h-8 text-base border-2 border-[var(--color-border)]"
-            style={{ background: "var(--color-accent)", boxShadow: "2px 2px 0px var(--color-border)" }}
+            className="brutal flex items-center justify-center w-10 h-10 text-base rounded-xl"
+            style={{ background: "var(--color-lime)", color: "var(--color-lime-foreground)" }}
             aria-hidden="true"
           >
             🎁
           </span>
           <span
-            className="font-black text-lg hidden sm:block"
+            className="font-bold text-lg hidden sm:block tracking-tight"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Giveaway
+            DrawUp
           </span>
         </Link>
 
@@ -93,9 +92,12 @@ export async function Header() {
         <div className="flex items-center gap-2">
           {profile ? (
             <>
-              <div className="flex items-center gap-1 font-bold text-sm bg-[var(--color-muted)] px-3 py-1.5 border-2 border-[var(--color-border)]" style={{ boxShadow: "2px 2px 0px var(--color-border)" }}>
-                <span>💰</span>
-                <span>{profile.credits} Credits</span>
+              <div
+                className="brutal-press-sm flex items-center gap-1 font-bold text-sm rounded-lg px-3 py-1.5"
+                style={{ background: "var(--color-coin)", color: "var(--color-coin-foreground)" }}
+              >
+                <span>🪙</span>
+                <span style={{ fontFamily: "var(--font-display)" }}>{profile.credits}</span>
               </div>
               <UserMenu user={profile} />
             </>

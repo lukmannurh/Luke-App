@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   description: "Create a new giveaway room. Set the number range, deadline, and number of winners.",
 };
 
+// Uses Supabase cookies — must be dynamic
+export const dynamic = "force-dynamic";
+
 /**
  * Create Room page — Server Component (form is a Client Component).
  */

@@ -42,8 +42,8 @@ export function DashboardCharts({ growthData, distributionData }: DashboardChart
                   fontWeight: "bold",
                 }}
               />
-              <Bar dataKey="users" name="New Users" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="rooms" name="Rooms Created" fill="var(--color-accent)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="users" name="New Users" fill="var(--color-sky)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="rooms" name="Rooms Created" fill="var(--color-lime)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

@@ -6,9 +6,14 @@ export const metadata = {
   title: "Admin Dashboard | Giveaway App",
 };
 
+// Uses Supabase service role at runtime — prevent static prerendering
+export const dynamic = "force-dynamic";
+
+
 export default async function AdminPage() {
   const supabaseAuth = await createClient();
-  const { data: { user } } = await supabaseAuth.auth.getUser();
+  await supabaseAuth.auth.getUser(); // Ensures session is valid (middleware handles redirect)
+
 
   // Initialize service role client for admin stats
   const supabaseAdmin = createSupabaseClient(

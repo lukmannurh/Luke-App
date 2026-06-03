@@ -9,51 +9,69 @@
 
 @theme {
   /* --- Fonts --- */
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-display: "Space Grotesk", "Inter", sans-serif;
+  --font-sans: "Space Grotesk", system-ui, sans-serif;
+  --font-display: "Archivo Black", system-ui, sans-serif;
 
-  /* --- Colors --- */
+  /* --- Core Colors (Lovable Neobrutalism palette) --- */
   --color-background: #fafafa;
   --color-foreground: #0a0a0a;
 
-  --color-primary: #2563eb;
-  --color-primary-foreground: #ffffff;
+  --color-card: #ffffff;
+  --color-card-foreground: #0a0a0a;
 
-  --color-secondary: #7c3aed;
-  --color-secondary-foreground: #ffffff;
+  --color-primary: #f5e642;
+  --color-primary-foreground: #0a0a0a;
 
-  --color-accent: #fde047;
+  --color-secondary: #ffffff;
+  --color-secondary-foreground: #0a0a0a;
+
+  --color-accent: #6bdb6b;
   --color-accent-foreground: #0a0a0a;
 
-  --color-destructive: #dc2626;
+  --color-destructive: #e63946;
   --color-destructive-foreground: #ffffff;
 
-  --color-success: #16a34a;
-  --color-success-foreground: #ffffff;
+  --color-success: #6bdb6b;
+  --color-success-foreground: #0a0a0a;
 
   --color-warning: #ea580c;
   --color-warning-foreground: #ffffff;
 
-  --color-muted: #f5f5f5;
+  --color-muted: #f0efeb;
   --color-muted-foreground: #737373;
 
   --color-border: #0a0a0a;
   --color-input: #fafafa;
-  --color-ring: #2563eb;
+  --color-ring: #0a0a0a;
+
+  /* --- Lovable Semantic Palette --- */
+  --color-ink: #0a0a0a;
+  --color-lime: #c3f53c;
+  --color-lime-foreground: #0a0a0a;
+  --color-pink: #f472b6;
+  --color-pink-foreground: #0a0a0a;
+  --color-sky: #7dd3fc;
+  --color-sky-foreground: #0a0a0a;
+  --color-coin: #fcd34d;
+  --color-coin-foreground: #0a0a0a;
 
   /* --- Border widths --- */
   --border-width-3: 3px;
   --border-width-5: 5px;
 
-  /* --- Neobrutalism box shadows (no blur = 0px) --- */
+  /* --- Neobrutalism box shadows --- */
   --shadow-neo: 4px 4px 0px #0a0a0a;
   --shadow-neo-lg: 6px 6px 0px #0a0a0a;
   --shadow-neo-xl: 8px 8px 0px #0a0a0a;
-  --shadow-neo-primary: 6px 6px 0px #2563eb;
-  --shadow-neo-accent: 6px 6px 0px #fde047;
-  --shadow-neo-success: 6px 6px 0px #16a34a;
-  --shadow-neo-destructive: 6px 6px 0px #dc2626;
+  --shadow-neo-primary: 6px 6px 0px #f5e642;
+  --shadow-neo-accent: 6px 6px 0px #6bdb6b;
+  --shadow-neo-success: 6px 6px 0px #6bdb6b;
+  --shadow-neo-destructive: 6px 6px 0px #e63946;
   --shadow-neo-warning: 6px 6px 0px #ea580c;
+  /* Lovable brutal shadows */
+  --shadow-brutal: 6px 6px 0 0 #0a0a0a;
+  --shadow-brutal-sm: 3px 3px 0 0 #0a0a0a;
+  --shadow-brutal-lg: 10px 10px 0 0 #0a0a0a;
 
   /* --- Font sizes (min 16px for mobile) --- */
   --font-size-xs: 0.75rem;
@@ -76,30 +94,30 @@
    ============================================================ */
 :root {
   color-scheme: light;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  --radius: 1rem;
+  --background: oklch(0.96 0.04 95);
+  --foreground: oklch(0 0 0);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --popover-foreground: oklch(0 0 0);
+  --primary: oklch(0.86 0.2 95);
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(1 0 0);
+  --secondary-foreground: oklch(0 0 0);
+  --muted: oklch(0.93 0.02 95);
+  --muted-foreground: oklch(0.45 0.02 95);
+  --accent: oklch(0.7 0.18 150);
+  --accent-foreground: oklch(0 0 0);
+  --destructive: oklch(0.62 0.24 27);
+  --border: oklch(0 0 0);
+  --input: oklch(0 0 0);
+  --ring: oklch(0 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -108,6 +126,28 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  color-scheme: dark;
+  --background: oklch(0.2 0.02 270);
+  --foreground: oklch(0.98 0 0);
+  --card: oklch(0.27 0.03 270);
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.27 0.03 270);
+  --popover-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.86 0.2 95);
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(0.27 0.03 270);
+  --secondary-foreground: oklch(0.98 0 0);
+  --muted: oklch(0.3 0.03 270);
+  --muted-foreground: oklch(0.72 0.02 270);
+  --accent: oklch(0.7 0.18 150);
+  --accent-foreground: oklch(0 0 0);
+  --destructive: oklch(0.62 0.24 27);
+  --border: oklch(0 0 0);
+  --input: oklch(0 0 0);
+  --ring: oklch(0.98 0 0);
 }
 
 *,
@@ -134,7 +174,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   font-weight: 900;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 /* Focus ring for accessibility */
@@ -176,6 +216,35 @@ h1, h2, h3, h4, h5, h6 {
 .neo-card-hover:active {
   transform: translate(4px, 4px);
   box-shadow: none;
+}
+
+/* --- Lovable Brutal interaction classes --- */
+.brutal {
+  border: 3px solid var(--color-ink);
+  box-shadow: var(--shadow-brutal);
+  transition: transform 80ms ease, box-shadow 80ms ease;
+}
+
+.brutal-press {
+  border: 3px solid var(--color-ink);
+  box-shadow: var(--shadow-brutal);
+  transition: transform 80ms ease, box-shadow 80ms ease;
+}
+
+.brutal-press:active {
+  transform: translate(6px, 6px);
+  box-shadow: 0 0 0 0 var(--color-ink);
+}
+
+.brutal-press-sm {
+  border: 3px solid var(--color-ink);
+  box-shadow: var(--shadow-brutal-sm);
+  transition: transform 80ms ease, box-shadow 80ms ease;
+}
+
+.brutal-press-sm:active {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 0 var(--color-ink);
 }
 
 /* --- Buttons --- */

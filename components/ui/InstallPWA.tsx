@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Download } from "lucide-react";
 
 export function InstallPWA() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -8,11 +9,8 @@ export function InstallPWA() {
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: any) => {
-      // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
-      // Stash the event so it can be triggered later.
       setDeferredPrompt(e);
-      // Update UI notify the user they can install the PWA
       setIsInstallable(true);
     };
 
@@ -25,14 +23,8 @@ export function InstallPWA() {
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
-    
-    // Show the install prompt
     deferredPrompt.prompt();
-    
-    // Wait for the user to respond to the prompt
     const { outcome } = await deferredPrompt.userChoice;
-    
-    // We no longer need the prompt. Clear it up
     setDeferredPrompt(null);
     setIsInstallable(false);
   };
@@ -44,14 +36,16 @@ export function InstallPWA() {
   return (
     <button
       onClick={handleInstallClick}
-      className="neo-btn neo-btn-sm"
+      className="brutal-press-sm flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-bold"
       style={{
-        background: "var(--color-success)",
-        color: "#fff",
+        background: "var(--color-lime)",
+        color: "var(--color-lime-foreground)",
+        fontFamily: "var(--font-display)",
       }}
       aria-label="Install App"
     >
-      📱 Install App
+      <Download className="h-4 w-4" strokeWidth={2.5} />
+      Install
     </button>
   );
 }

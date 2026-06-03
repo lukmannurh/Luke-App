@@ -43,9 +43,8 @@ export function MobileNav({ isAdmin }: { isAdmin?: boolean }) {
                 id={item.id}
                 className="flex flex-col items-center justify-center gap-0.5 py-2 h-14 w-full transition-colors"
                 style={{
-                  background: isActive ? "var(--color-accent)" : "transparent",
+                  background: isActive ? "var(--color-lime)" : "transparent",
                   borderRight: "1px solid var(--color-border)",
-                  fontFamily: "var(--font-display)",
                 }}
                 aria-current={isActive ? "page" : undefined}
               >
@@ -54,7 +53,10 @@ export function MobileNav({ isAdmin }: { isAdmin?: boolean }) {
                 </span>
                 <span
                   className="text-xs font-bold"
-                  style={{ color: isActive ? "var(--color-accent-foreground)" : "var(--color-muted-foreground)" }}
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    color: isActive ? "var(--color-lime-foreground)" : "var(--color-muted-foreground)",
+                  }}
                 >
                   {item.label}
                 </span>
