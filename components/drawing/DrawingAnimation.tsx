@@ -153,7 +153,7 @@ export function DrawingAnimation({
 
   if (phase === "done") {
     return (
-      <div className="neo-card p-10 text-center" style={{ background: "#eff6ff", boxShadow: "var(--shadow-neo-primary)" }}>
+      <div className="neo-card p-10 text-center text-zinc-900 dark:text-zinc-900" style={{ background: "#eff6ff", boxShadow: "var(--shadow-neo-primary)" }}>
         <div className="text-6xl mb-4" aria-hidden="true">🏆</div>
         <h2 className="text-3xl font-black mb-6" style={{ fontFamily: "var(--font-display)" }}>
           {winners.length > 1 ? "WINNERS REVEALED!" : "WINNER REVEALED!"}

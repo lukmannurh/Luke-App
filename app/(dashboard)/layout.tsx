@@ -17,7 +17,11 @@ export default async function DashboardLayout({
 }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const isAdmin = user?.user_metadata?.role === 'admin';
+  let isAdmin = false;
+  if (user) {
+    const { data: profile } = await supabase.from('users').select('role').eq('id', user.id).single();
+    isAdmin = profile?.role === 'admin';
+  }
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header />

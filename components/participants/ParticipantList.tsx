@@ -51,7 +51,7 @@ export function ParticipantList({
           return (
             <li
               key={p.id}
-              className="neo-card flex items-center gap-3 px-3 py-2.5"
+              className={`neo-card flex items-center gap-3 px-3 py-2.5 ${isCurrentUser ? "text-zinc-900 dark:text-zinc-900" : ""}`}
               style={{
                 background: isCurrentUser ? "#eff6ff" : undefined,
                 boxShadow: isCurrentUser

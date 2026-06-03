@@ -31,15 +31,15 @@ export async function Header() {
       <div className="mx-auto flex max-w-md items-center justify-between gap-2 px-4 py-3">
         {/* Logo */}
         <Link href="/rooms" className="flex items-center gap-2" id="header-logo" aria-label="Giveaway App home">
-          <Image src="/Luke.png" alt="Giveaway App" width={40} height={40} className="rounded-xl object-cover" />
-          <span className="font-display text-lg leading-none tracking-tight">Giveaway App</span>
+          <Image src="/Luke.png" alt="Giveaway App" width={40} height={40} className="rounded-xl object-cover flex-shrink-0" />
+          <span className="font-display text-lg leading-none tracking-tight whitespace-nowrap">Giveaway App</span>
         </Link>
 
         {/* Right: coin balance + theme */}
         <div className="flex items-center gap-2">
           {profile && (
             <span className="brutal flex h-10 items-center gap-1 rounded-xl bg-coin px-3 font-display text-sm text-coin-foreground">
-              🪙 {profile.credits.toLocaleString()}
+              🪙 {Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(profile.credits)}
             </span>
           )}
           <ThemeToggleButton />

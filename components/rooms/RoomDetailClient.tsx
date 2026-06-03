@@ -278,7 +278,7 @@ export function RoomDetailClient({
       {myNumber !== null ? (
         /* Already joined */
         <div
-          className="neo-card p-5 text-center"
+          className="neo-card p-5 text-center text-zinc-900 dark:text-zinc-900"
           style={{ background: "#eff6ff", boxShadow: "var(--shadow-neo-primary)" }}
         >
           <div className="text-4xl font-black mb-1" style={{ fontFamily: "var(--font-display)" }}>

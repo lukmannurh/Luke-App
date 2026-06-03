@@ -54,7 +54,7 @@ export function ForceDrawButton({ room, currentUserId }: ForceDrawButtonProps) {
   if (success) {
     return (
       <div
-        className="neo-card p-4 text-center"
+        className="neo-card p-4 text-center text-zinc-900 dark:text-zinc-900"
         style={{ background: "#f0fdf4", boxShadow: "var(--shadow-neo-success)" }}
       >
         <p className="font-bold" style={{ color: "var(--color-success)" }}>
@@ -66,7 +66,7 @@ export function ForceDrawButton({ room, currentUserId }: ForceDrawButtonProps) {
 
   return (
     <div
-      className="neo-card p-4"
+      className="neo-card p-4 text-zinc-900 dark:text-zinc-900"
       style={{
         background: "#fef3c7",
         boxShadow: "var(--shadow-neo-warning)",
