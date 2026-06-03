@@ -7,7 +7,7 @@ import { DeleteRoomButton } from "@/components/rooms/DeleteRoomButton";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Drawing History — DrawUp",
+  title: "Drawing History — Giveaway App",
   description: "Browse completed giveaway rooms and see the winners.",
 };
 

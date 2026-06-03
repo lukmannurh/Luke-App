@@ -8,7 +8,7 @@ import { StateBadge } from "@/components/rooms/RoomCard";
 import { formatDistanceToNow } from "date-fns";
 
 export const metadata = {
-  title: "Your Profile — DrawUp",
+  title: "Your Profile — Giveaway App",
 };
 
 export const dynamic = "force-dynamic";
@@ -18,31 +18,23 @@ export default async function ProfilePage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("users")
-    .select("*")
-    .eq("id", user.id)
-    .single();
-
-  // Fetch rooms the user participated in
-  const { data: participations } = await supabase
-    .from("participants")
-    .select("room_id, selected_number, rooms(id, title, state, deadline)")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(10);
-
-  // Fetch rooms user hosted
-  const { count: hostedCount } = await supabase
-    .from("rooms")
-    .select("id", { count: "exact", head: true })
-    .eq("host_id", user.id);
-
-  // Fetch wins
-  const { count: winCount } = await supabase
-    .from("winners")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", user.id);
+  // Fetch all user data in parallel
+  const [
+    { data: profile },
+    { data: participations },
+    { count: hostedCount },
+    { count: winCount },
+  ] = await Promise.all([
+    supabase.from("users").select("*").eq("id", user.id).single(),
+    supabase
+      .from("participants")
+      .select("room_id, selected_number, rooms(id, title, state, deadline)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(10),
+    supabase.from("rooms").select("id", { count: "exact", head: true }).eq("host_id", user.id),
+    supabase.from("winners").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+  ]);
 
   const p = profile as any;
   const isGuest = user.user_metadata?.is_guest === true;
@@ -108,31 +100,29 @@ export default async function ProfilePage() {
       )}
 
       {/* Account settings */}
-      {!isGuest && (
-        <section className="mt-6">
-          <h2 className="font-display text-lg">Account Settings</h2>
-          <div className="mt-3 flex flex-col gap-4">
-            <div className="brutal rounded-2xl bg-card p-5 text-card-foreground">
-              <h3 className="font-display text-base">Change Username</h3>
-              <div className="mt-3">
-                <UpdateUsernameForm currentUsername={p?.username ?? ""} />
-              </div>
-            </div>
-            <div className="brutal rounded-2xl bg-card p-5 text-card-foreground">
-              <h3 className="font-display text-base">Change Password</h3>
-              <div className="mt-3">
-                <UpdatePasswordForm />
-              </div>
-            </div>
-            <div className="brutal rounded-2xl bg-card p-5 text-card-foreground">
-              <h3 className="font-display text-base">Profile Photo</h3>
-              <div className="mt-3">
-                <AvatarUpload currentAvatar={p?.avatar_url ?? null} userId={user.id} />
-              </div>
+      <section className="mt-6">
+        <h2 className="font-display text-lg">Account Settings</h2>
+        <div className="mt-3 flex flex-col gap-4">
+          <div className="brutal rounded-2xl bg-card p-5 text-card-foreground">
+            <h3 className="font-display text-base">Change Username</h3>
+            <div className="mt-3">
+              <UpdateUsernameForm currentUsername={p?.username ?? ""} />
             </div>
           </div>
-        </section>
-      )}
+          <div className="brutal rounded-2xl bg-card p-5 text-card-foreground">
+            <h3 className="font-display text-base">Change Password</h3>
+            <div className="mt-3">
+              <UpdatePasswordForm />
+            </div>
+          </div>
+          <div className="brutal rounded-2xl bg-card p-5 text-card-foreground">
+            <h3 className="font-display text-base">Profile Photo</h3>
+            <div className="mt-3">
+              <AvatarUpload currentAvatar={p?.avatar_url ?? null} userId={user.id} />
+            </div>
+          </div>
+        </div>
+      </section>
     </>
   );
 }

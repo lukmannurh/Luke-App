@@ -25,7 +25,7 @@ export function Hero() {
         <Link
           href="/rooms"
           id="hero-open-app"
-          className="brutal-press flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-primary font-display text-lg text-primary-foreground"
+          className="brutal-press flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 sm:px-8 sm:py-4 font-display text-lg text-primary-foreground"
         >
           <ExternalLink className="h-6 w-6" strokeWidth={2.5} />
           Open Web App
@@ -33,7 +33,7 @@ export function Hero() {
         <Link
           href="/login"
           id="hero-signin"
-          className="brutal-press flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-card font-display text-lg text-card-foreground"
+          className="brutal-press flex w-full items-center justify-center gap-2 rounded-xl bg-card px-4 py-3 sm:px-8 sm:py-4 font-display text-lg text-card-foreground"
         >
           <Download className="h-6 w-6" strokeWidth={2.5} />
           Sign In / Guest

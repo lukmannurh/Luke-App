@@ -21,9 +21,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { id } = await params;
   const supabase = await createClient();
   const room = await getRoomById(supabase, id).catch(() => null);
-  if (!room) return { title: "Room Not Found — DrawUp" };
+  if (!room) return { title: "Room Not Found — Giveaway App" };
   return {
-    title: `${room.title} — DrawUp`,
+    title: `${room.title} — Giveaway App`,
     description: room.description,
   };
 }

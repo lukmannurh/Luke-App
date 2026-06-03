@@ -7,8 +7,8 @@ import type { Metadata } from "next";
 import { ArrowLeft, Gift, Zap } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Sign In — DrawUp",
-  description: "Sign in with Google, email, or play instantly as a guest on DrawUp.",
+  title: "Sign In — Giveaway App",
+  description: "Sign in with Google, email, or play instantly as a guest on Giveaway App.",
   robots: "noindex",
 };
 
@@ -53,7 +53,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             <Gift className="h-8 w-8" strokeWidth={2.5} />
           </span>
           <div className="text-center">
-            <h1 className="font-display text-2xl tracking-tight">Welcome to DrawUp</h1>
+            <h1 className="font-display text-2xl tracking-tight">Welcome to Giveaway App</h1>
             <p className="mt-1 text-sm font-medium text-muted-foreground">
               Fair, transparent giveaways for your community.
             </p>

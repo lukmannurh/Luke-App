@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Create Room — DrawUp",
+  title: "Create Room — Giveaway App",
   description: "Create a new giveaway room. Set the number range, deadline, and number of winners.",
 };
 

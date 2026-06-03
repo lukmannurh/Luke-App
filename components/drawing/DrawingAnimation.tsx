@@ -183,7 +183,7 @@ export function DrawingAnimation({
 
   const DigitColumn = ({ digit }: { digit: string | number }) => (
     <div 
-      className="flex flex-col items-center justify-center w-20 h-28 sm:w-24 sm:h-32 bg-white border-[4px] border-[var(--color-border)] overflow-hidden"
+      className="flex flex-col items-center justify-center w-20 h-28 sm:w-24 sm:h-32 bg-white border-[4px] border-[var(--color-border)] overflow-hidden text-zinc-900 dark:text-zinc-900"
       style={{ boxShadow: "4px 4px 0px var(--color-border)" }}
     >
       <span className="text-6xl sm:text-7xl font-black tabular-nums" style={{ fontFamily: "var(--font-display)" }}>

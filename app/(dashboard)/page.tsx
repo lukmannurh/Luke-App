@@ -9,9 +9,9 @@ import { BentoFeatures } from "@/components/landing/BentoFeatures";
 import { ThemeToggleButton } from "@/components/theme/ThemeToggleButton";
 
 export const metadata: Metadata = {
-  title: "DrawUp — Fair Draws. Zero Friction.",
+  title: "Giveaway App — Fair Draws. Zero Friction.",
   description:
-    "DrawUp is a mobile-first community giveaway app. Run transparent coin draws with smart credits, zero-wait automatic draws, and frictionless guest entry.",
+    "Giveaway App is a mobile-first community giveaway app. Run transparent coin draws with smart credits, zero-wait automatic draws, and frictionless guest entry.",
 };
 
 export const dynamic = "force-dynamic";
@@ -33,18 +33,7 @@ export default async function HomePage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      {/* Minimal landing header */}
-      <header className="sticky top-0 z-40 border-b-[3px] border-border bg-background">
-        <div className="mx-auto flex max-w-md items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2">
-            <span className="brutal flex h-11 w-11 items-center justify-center rounded-xl bg-lime text-lime-foreground">
-              <Gift className="h-6 w-6" strokeWidth={2.5} />
-            </span>
-            <span className="font-display text-lg leading-none tracking-tight">DrawUp</span>
-          </div>
-          <ThemeToggleButton />
-        </div>
-      </header>
+      {/* Minimal landing header removed to use global header */}
 
       <main className="flex-1">
         <Hero />
@@ -65,6 +54,7 @@ export default async function HomePage() {
           </Link>
         </div>
       </div>
+      <footer className="text-center py-4 text-sm font-medium">Created by lil owi</footer>
     </div>
   );
 }

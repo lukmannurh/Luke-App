@@ -1,5 +1,6 @@
 import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
+import { createClient } from "@/lib/supabase/server";
 
 // Layout fetches user profile via Supabase cookies — must be dynamic
 export const dynamic = "force-dynamic";
@@ -9,11 +10,14 @@ export const dynamic = "force-dynamic";
  * Header (sticky top) + main content (max-w-md centered) + MobileNav (sticky bottom).
  * Auth protection is handled by proxy.ts middleware.
  */
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const isAdmin = user?.user_metadata?.role === 'admin';
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
@@ -23,7 +27,7 @@ export default function DashboardLayout({
       >
         {children}
       </main>
-      <MobileNav />
+      <MobileNav isAdmin={isAdmin} />
     </div>
   );
 }

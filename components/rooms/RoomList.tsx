@@ -38,7 +38,7 @@ export function RoomList({ rooms }: { rooms: RoomListItem[] }) {
       {/* Room cards */}
       <div className="mt-4 flex flex-col gap-4">
         {filtered.length === 0 ? (
-          <div className="brutal rounded-2xl bg-card p-10 text-center text-card-foreground">
+          <div className="brutal flex flex-col items-center justify-center text-center rounded-2xl bg-card p-10 text-card-foreground">
             <div className="text-4xl">💭</div>
             <p className="mt-3 font-display text-lg">No rooms here yet</p>
             <p className="mt-1 text-sm font-medium text-muted-foreground">

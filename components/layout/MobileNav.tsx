@@ -2,20 +2,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, History, User, Plus } from "lucide-react";
+import { LayoutGrid, History, User, Plus, ShieldAlert } from "lucide-react";
+import { InstallPWA } from "@/components/ui/InstallPWA";
 
 const navItems = [
   { href: "/rooms", label: "Browse", icon: LayoutGrid, id: "mobile-nav-browse" },
   { href: "/rooms/history", label: "History", icon: History, id: "mobile-nav-history" },
   { href: "/profile", label: "Profile", icon: User, id: "mobile-nav-profile" },
+  { href: "/admin", label: "Admin", icon: ShieldAlert, id: "mobile-nav-admin" },
 ];
 
 /**
  * Lovable-style bottom navigation bar.
  * Centre slot is the "Create" FAB that lifts above the bar.
  */
-export function MobileNav() {
+export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+
+  if (pathname === "/") return null;
 
   return (
     <nav
@@ -36,14 +40,14 @@ export function MobileNav() {
         <Link
           href="/rooms/create"
           id="mobile-nav-create"
-          className="brutal-press -mt-6 flex h-16 w-16 flex-col items-center justify-center rounded-2xl bg-primary text-primary-foreground"
+          className="brutal-press -mt-6 -translate-y-4 flex h-16 w-16 flex-col items-center justify-center rounded-2xl bg-lime text-lime-foreground shadow-xl shadow-lime/20"
           aria-label="Create giveaway"
         >
           <Plus className="h-7 w-7" strokeWidth={3} />
           <span className="font-display text-[10px] leading-none">Create</span>
         </Link>
 
-        {/* Right: History + Profile */}
+        {/* Right: History + Profile + Admin */}
         <NavTab
           href={navItems[1].href}
           label={navItems[1].label}
@@ -58,6 +62,20 @@ export function MobileNav() {
           id={navItems[2].id}
           active={pathname.startsWith("/profile")}
         />
+        {isAdmin && (
+          <NavTab
+            href={navItems[3].href}
+            label={navItems[3].label}
+            Icon={navItems[3].icon}
+            id={navItems[3].id}
+            active={pathname.startsWith("/admin")}
+          />
+        )}
+        
+        {/* PWA Install Button inline on mobile */}
+        <div className="absolute -top-12 right-4">
+          <InstallPWA />
+        </div>
       </div>
     </nav>
   );

@@ -8,7 +8,7 @@ import { RoomList } from "@/components/rooms/RoomList";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Browse Rooms — DrawUp",
+  title: "Browse Rooms — Giveaway App",
   description:
     "Browse active community giveaway rooms, join one and pick your lucky number before the deadline.",
 };

@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import { ArrowLeft, Gift } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Sign Up — DrawUp",
+  title: "Sign Up — Giveaway App",
   description: "Create an account to join and host fair, transparent giveaways.",
   robots: "noindex",
 };
