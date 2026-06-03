@@ -4,17 +4,14 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { LocalTime } from "@/components/shared/LocalTime";
 import { DeleteRoomButton } from "@/components/rooms/DeleteRoomButton";
-
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
-  title: "Drawing History — Giveaway App",
+  title: "Drawing History — DrawUp",
   description: "Browse completed giveaway rooms and see the winners.",
 };
 
-// Uses Supabase cookies — must be dynamic
 export const dynamic = "force-dynamic";
-
 
 const PAGE_SIZE = 20;
 
@@ -31,16 +28,13 @@ async function HistoryContent({ searchParams }: PageProps) {
   const { data: { session } } = await supabase.auth.getSession();
   const currentUserId = session?.user?.id;
 
-  // Fetch finished rooms with host info and top winner
   const { data: rooms, count } = await supabase
     .from("rooms")
     .select(
-      `
-      id, title, description, deadline, drawing_completed_at,
-      drawing_participant_count, total_winners, host_id,
-      host:users!rooms_host_id_fkey(id, username, avatar_url),
-      winners(sequence, selected_number, user:users!winners_user_id_fkey(username, avatar_url))
-      `,
+      `id, title, description, deadline, drawing_completed_at,
+       drawing_participant_count, total_winners, host_id,
+       host:users!rooms_host_id_fkey(id, username, avatar_url),
+       winners(sequence, selected_number, user:users!winners_user_id_fkey(username, avatar_url))`,
       { count: "exact" }
     )
     .eq("state", "finished")
@@ -48,175 +42,99 @@ async function HistoryContent({ searchParams }: PageProps) {
     .range(offset, offset + PAGE_SIZE - 1);
 
   const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE);
+  const finished = rooms ?? [];
 
   return (
     <>
-      {/* Header Container */}
-      <div className="flex flex-col gap-2 mb-6">
-        <h1 className="text-3xl font-black" style={{ fontFamily: "var(--font-display)" }}>
-          📜 Drawing History
-        </h1>
-        <p className="text-sm font-medium" style={{ color: "var(--color-muted-foreground)" }}>
-          {count ?? 0} completed giveaway{(count ?? 0) !== 1 ? "s" : ""}
-        </p>
-        <p className="text-sm" style={{ color: "var(--color-muted-foreground)" }}>
-          Riwayat pengundian akan dihapus otomatis dari sistem setelah 7 hari.
-        </p>
-      </div>
+      <h1 className="font-display text-3xl leading-tight tracking-tight">📜 Drawing History</h1>
+      <p className="mt-1 text-sm font-medium text-muted-foreground">
+        {count ?? 0} completed giveaway{(count ?? 0) !== 1 ? "s" : ""}
+      </p>
+      <p className="mt-1 text-xs font-medium text-muted-foreground">
+        History is automatically cleared after 7 days.
+      </p>
 
-      {/* Room list */}
-      {!rooms || rooms.length === 0 ? (
-        <div className="neo-card p-12 text-center">
-          <div className="text-5xl mb-4" aria-hidden="true">📭</div>
-          <h2
-            className="text-xl font-black mb-2"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            No finished giveaways yet
-          </h2>
-          <p style={{ color: "var(--color-muted-foreground)" }}>
-            Check back after the first deadline passes.
-          </p>
-          <Link href="/" className="neo-btn neo-btn-primary mt-4 inline-flex">
+      {finished.length === 0 ? (
+        <div className="brutal mt-5 rounded-2xl bg-card p-10 text-center text-card-foreground">
+          <div className="text-4xl">💭</div>
+          <p className="mt-3 font-display text-lg">No finished giveaways yet</p>
+          <p className="mt-1 text-sm text-muted-foreground">Check back after the first deadline passes.</p>
+          <Link href="/rooms" className="brutal-press mt-4 inline-flex h-11 items-center rounded-xl bg-primary px-4 font-display text-primary-foreground">
             Browse Active Rooms
           </Link>
         </div>
       ) : (
-        <ol className="space-y-4" aria-label="Finished giveaway rooms">
-          {(rooms as any[]).map((room) => {
-            const firstWinner = room.winners
+        <div className="mt-5 flex flex-col gap-4">
+          {(finished as any[]).map((room, i) => {
+            const top = room.winners
               ?.sort((a: any, b: any) => a.sequence - b.sequence)
               ?.at(0);
-
             return (
-              <li key={room.id}>
+              <div key={room.id} className="relative">
                 <Link
                   href={`/rooms/${room.id}`}
                   id={`history-room-${room.id}`}
-                  className="block neo-card-hover p-5"
+                  style={{ animationDelay: `${i * 60}ms` }}
+                  className="brutal-press animate-rise flex items-start gap-3 rounded-2xl bg-card p-4 text-card-foreground"
                   aria-label={`View results for ${room.title}`}
                 >
-                  <div className="flex items-start gap-4">
-                    {/* First winner avatar */}
-                    <div
-                      className="flex-shrink-0 w-12 h-12 border-2 border-[var(--color-border)] overflow-hidden flex items-center justify-center"
-                      style={{
-                        background: firstWinner ? "var(--color-accent)" : "var(--color-muted)",
-                      }}
-                      aria-hidden="true"
-                    >
-                      {firstWinner?.user?.avatar_url ? (
-                        <Image
-                          src={firstWinner.user.avatar_url}
-                          alt={firstWinner.user.username}
-                          width={48}
-                          height={48}
-                          className="object-cover w-full h-full"
-                        />
-                      ) : (
-                        <span className="text-2xl">
-                          {firstWinner ? "🏆" : "🎪"}
-                        </span>
-                      )}
+                  <span className="brutal flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-coin text-xl text-coin-foreground">
+                    {top ? "🏆" : "🎤"}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <h2 className="truncate font-display text-lg leading-tight">{room.title}</h2>
+                      <span className="brutal-press-sm flex-shrink-0 rounded-full bg-card px-2.5 py-0.5 text-xs font-bold">✅</span>
                     </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 flex-wrap">
-                        <h2
-                          className="font-black text-lg leading-tight truncate"
-                          style={{ fontFamily: "var(--font-display)" }}
-                        >
-                          {room.title}
-                        </h2>
-                        <span className="neo-badge neo-badge-finished flex-shrink-0">
-                          ✅ Finished
-                        </span>
-                      </div>
-
-                      {/* Winner info */}
-                      {firstWinner ? (
-                        <p className="text-sm font-medium mt-0.5">
-                          🥇 Winner: <strong>{firstWinner.user?.username}</strong>{" "}
-                          <span style={{ color: "var(--color-muted-foreground)" }}>
-                            (#{firstWinner.selected_number})
-                          </span>
-                          {room.winners.length > 1 && (
-                            <span style={{ color: "var(--color-muted-foreground)" }}>
-                              {" "}+ {room.winners.length - 1} more
-                            </span>
-                          )}
-                        </p>
-                      ) : (
-                        <p
-                          className="text-sm mt-0.5"
-                          style={{ color: "var(--color-muted-foreground)" }}
-                        >
-                          No participants
-                        </p>
-                      )}
-
-                      {/* Meta */}
-                      <div
-                        className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-xs"
-                        style={{ color: "var(--color-muted-foreground)" }}
-                      >
-                        <span>by {(room.host as any)?.username}</span>
-                        <span>👥 {room.drawing_participant_count ?? 0}</span>
-                        <span>
-                          {room.drawing_completed_at
-                            ? <LocalTime iso={room.drawing_completed_at} format="timestamp" />
-                            : <LocalTime iso={room.deadline} format="deadline" />}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Actions */}
-                    {currentUserId && currentUserId === room.host_id && (
-                      <div className="ml-4 self-center">
-                        <DeleteRoomButton 
-                          roomId={room.id} 
-                          roomTitle={room.title} 
-                          isFinished={true} 
-                          hostId={room.host_id} 
-                          currentUserId={currentUserId} 
-                        />
-                      </div>
+                    {top ? (
+                      <p className="mt-1 text-sm font-medium">
+                        🥇 {top.user?.username}{" "}
+                        <span className="text-muted-foreground">(#{top.selected_number})</span>
+                        {room.winners.length > 1 && (
+                          <span className="text-muted-foreground"> + {room.winners.length - 1} more</span>
+                        )}
+                      </p>
+                    ) : (
+                      <p className="mt-1 text-sm text-muted-foreground">No participants</p>
                     )}
+                    <div className="mt-2 flex flex-wrap gap-x-3 text-xs font-bold text-muted-foreground">
+                      <span>by {(room.host as any)?.username}</span>
+                      <span>👥 {room.drawing_participant_count ?? 0}</span>
+                      <span>
+                        {room.drawing_completed_at
+                          ? <LocalTime iso={room.drawing_completed_at} format="timestamp" />
+                          : <LocalTime iso={room.deadline} format="deadline" />}
+                      </span>
+                    </div>
                   </div>
                 </Link>
-              </li>
+                {currentUserId && currentUserId === room.host_id && (
+                  <div className="absolute right-3 top-3">
+                    <DeleteRoomButton
+                      roomId={room.id}
+                      roomTitle={room.title}
+                      isFinished={true}
+                      hostId={room.host_id}
+                      currentUserId={currentUserId}
+                    />
+                  </div>
+                )}
+              </div>
             );
           })}
-        </ol>
+        </div>
       )}
 
-      {/* Pagination */}
       {totalPages > 1 && (
-        <nav
-          className="flex items-center justify-center gap-3 mt-8"
-          aria-label="History pagination"
-        >
+        <nav className="mt-8 flex items-center justify-center gap-3" aria-label="History pagination">
           {page > 1 && (
-            <Link
-              href={`/rooms/history?page=${page - 1}`}
-              id="history-prev"
-              className="neo-btn neo-btn-outline neo-btn-sm"
-              aria-label="Previous page"
-            >
+            <Link href={`/rooms/history?page=${page - 1}`} id="history-prev" className="brutal-press-sm rounded-xl bg-card px-4 py-2 font-display text-card-foreground" aria-label="Previous page">
               ← Prev
             </Link>
           )}
-          <span className="neo-badge neo-badge-muted">
-            {page} / {totalPages}
-          </span>
+          <span className="brutal-press-sm rounded-full bg-card px-3 py-0.5 font-display text-xs text-card-foreground">{page} / {totalPages}</span>
           {page < totalPages && (
-            <Link
-              href={`/rooms/history?page=${page + 1}`}
-              id="history-next"
-              className="neo-btn neo-btn-outline neo-btn-sm"
-              aria-label="Next page"
-            >
+            <Link href={`/rooms/history?page=${page + 1}`} id="history-next" className="brutal-press-sm rounded-xl bg-card px-4 py-2 font-display text-card-foreground" aria-label="Next page">
               Next →
             </Link>
           )}
@@ -226,21 +144,17 @@ async function HistoryContent({ searchParams }: PageProps) {
   );
 }
 
-/**
- * History Page — Server Component.
- * Uses Suspense to instantly stream the layout.
- */
 export default function HistoryPage(props: PageProps) {
   return (
-    <div>
-      <Suspense fallback={
-        <div className="flex flex-col gap-2 mb-6">
-          <h1 className="text-3xl font-black" style={{ fontFamily: "var(--font-display)" }}>📜 Drawing History</h1>
-          <p className="text-sm font-medium animate-pulse" style={{ color: "var(--color-muted-foreground)" }}>Loading history...</p>
-        </div>
-      }>
-        <HistoryContent searchParams={props.searchParams} />
-      </Suspense>
-    </div>
+    <Suspense
+      fallback={
+        <>
+          <h1 className="font-display text-3xl leading-tight tracking-tight">📜 Drawing History</h1>
+          <p className="mt-1 text-sm font-medium animate-pulse text-muted-foreground">Loading history...</p>
+        </>
+      }
+    >
+      <HistoryContent searchParams={props.searchParams} />
+    </Suspense>
   );
 }

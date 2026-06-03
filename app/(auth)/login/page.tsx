@@ -4,11 +4,11 @@ import { LoginButton } from "@/components/auth/LoginButton";
 import { EmailAuthForm } from "@/components/auth/EmailAuthForm";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { ArrowLeft, Gift, Zap } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Sign In | Giveaway App",
-  description:
-    "Sign in with Google, your email, or play instantly as a guest to join and create giveaways.",
+  title: "Sign In — DrawUp",
+  description: "Sign in with Google, email, or play instantly as a guest on DrawUp.",
   robots: "noindex",
 };
 
@@ -18,190 +18,107 @@ interface LoginPageProps {
   searchParams: Promise<{ redirectedFrom?: string; error?: string }>;
 }
 
-/**
- * Login Page — Server Component.
- * Supports three auth methods: Google OAuth, Email/Password, and Guest Login.
- * Redirects to home if the user is already authenticated.
- */
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const supabase = await createClient();
   const params = await searchParams;
 
-  // Already authenticated → skip login
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (user) {
-    redirect(params.redirectedFrom ?? "/");
-  }
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) redirect(params.redirectedFrom ?? "/rooms");
 
   const errorMessages: Record<string, string> = {
     no_code: "The sign-in link was invalid. Please try again.",
-    auth_failed: "Something went wrong during sign-in. Please try again.",
+    auth_failed: "Something went wrong. Please try again.",
   };
   const oauthError = params.error ? errorMessages[params.error] : null;
 
   return (
-    <main
-      className="min-h-screen flex items-center justify-center p-4"
-      id="main-content"
-    >
-      {/* Background */}
-      <div
-        className="fixed inset-0 -z-10"
-        style={{ background: "var(--color-background)" }}
-        aria-hidden="true"
-      >
-        {/* Neobrutalism accent stripe */}
-        <div
-          className="absolute top-0 left-0 right-0 h-2"
-          style={{ background: "var(--color-primary)" }}
-        />
+    <div className="flex min-h-screen flex-col bg-background">
+      <div className="h-2 w-full bg-primary" />
+      <div className="mx-auto w-full max-w-sm px-4 pt-4">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1 font-display text-sm text-muted-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" strokeWidth={2.5} /> Home
+        </Link>
       </div>
 
-      <div className="w-full max-w-sm flex flex-col gap-4">
-        {/* ───── Header Card ───── */}
-        <div
-          className="neo-card p-6 flex flex-col items-center gap-4"
-        >
-          {/* App icon */}
-          <div
-            className="w-16 h-16 flex items-center justify-center text-3xl border-3 border-[var(--color-border)]"
-            style={{
-              background: "var(--color-accent)",
-              boxShadow: "var(--shadow-neo)",
-            }}
-            aria-hidden="true"
-          >
-            🎁
-          </div>
-
+      <main
+        id="main-content"
+        className="animate-rise mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-4 px-4 pb-8 pt-4"
+      >
+        {/* Identity card */}
+        <div className="brutal flex flex-col items-center gap-3 rounded-2xl bg-card p-6 text-card-foreground">
+          <span className="brutal flex h-16 w-16 items-center justify-center rounded-2xl bg-lime text-lime-foreground">
+            <Gift className="h-8 w-8" strokeWidth={2.5} />
+          </span>
           <div className="text-center">
-            <h1
-              className="text-2xl font-black"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              Giveaway App
-            </h1>
-            <p
-              className="text-sm font-medium mt-1"
-              style={{ color: "var(--color-muted-foreground)" }}
-            >
+            <h1 className="font-display text-2xl tracking-tight">Welcome to DrawUp</h1>
+            <p className="mt-1 text-sm font-medium text-muted-foreground">
               Fair, transparent giveaways for your community.
             </p>
           </div>
         </div>
 
-        {/* ───── Auth Card ───── */}
-        <div className="neo-card p-6 flex flex-col gap-5">
-
-          {/* Section label */}
-          <p
-            className="text-xs font-black uppercase tracking-widest text-center"
-            style={{ color: "var(--color-muted-foreground)", fontFamily: "var(--font-display)" }}
-          >
+        {/* Auth card */}
+        <div className="brutal flex flex-col gap-4 rounded-2xl bg-card p-6 text-card-foreground">
+          <p className="text-center font-display text-xs uppercase tracking-widest text-muted-foreground">
             Choose how to join
           </p>
 
-          {/* OAuth error from redirect */}
           {oauthError && (
             <div
               role="alert"
-              className="neo-card p-3 text-sm font-medium text-center"
-              style={{
-                background: "#fef2f2",
-                borderColor: "var(--color-destructive)",
-                color: "var(--color-destructive)",
-                boxShadow: "var(--shadow-neo-destructive)",
-              }}
+              className="brutal rounded-xl bg-pink p-3 text-center text-sm font-medium text-pink-foreground"
             >
               ⚠️ {oauthError}
             </div>
           )}
 
-          {/* ── Method 1: Google OAuth ── */}
-          <div className="flex flex-col gap-2">
-            <p
-              className="text-xs font-black uppercase tracking-wide"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              🌐 With Google
-            </p>
-            <LoginButton redirectTo={params.redirectedFrom ?? "/"} />
-          </div>
+          {/* Google OAuth */}
+          <LoginButton redirectTo={params.redirectedFrom ?? "/rooms"} />
 
-          {/* ── Divider ── */}
+          {/* Guest */}
+          <Link
+            href={`/rooms${params.redirectedFrom ? `?from=${params.redirectedFrom}` : ""}`}
+            className="brutal-press flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-lime font-display text-lime-foreground"
+          >
+            <Zap className="h-5 w-5" strokeWidth={2.5} />
+            Play as Guest
+          </Link>
+
+          {/* Divider */}
           <div className="flex items-center gap-3" aria-hidden="true">
-            <div
-              className="flex-1 h-[3px]"
-              style={{ background: "var(--color-border)" }}
-            />
-            <span
-              className="text-xs font-black uppercase tracking-widest"
-              style={{ color: "var(--color-muted-foreground)" }}
-            >
-              or
-            </span>
-            <div
-              className="flex-1 h-[3px]"
-              style={{ background: "var(--color-border)" }}
-            />
+            <div className="h-[3px] flex-1 bg-border" />
+            <span className="font-display text-xs uppercase tracking-widest text-muted-foreground">or</span>
+            <div className="h-[3px] flex-1 bg-border" />
           </div>
 
-          {/* ── Method 2 & 3: Email/Password + Guest ── */}
-          <div className="flex flex-col gap-2">
-            <p
-              className="text-xs font-black uppercase tracking-wide"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              ✉️ With Email or Guest
-            </p>
-            <EmailAuthForm redirectTo={params.redirectedFrom ?? "/"} mode="signin" />
-          </div>
+          {/* Email */}
+          <EmailAuthForm redirectTo={params.redirectedFrom ?? "/rooms"} mode="signin" />
 
-          {/* ── Go to Register ── */}
-          <p className="text-center text-sm font-bold mt-2">
-            Don't have an account?{" "}
-            <Link
-              href="/register"
-              className="underline underline-offset-4 hover:text-[var(--color-primary)] transition-colors"
-            >
+          <p className="text-center text-sm font-bold">
+            Don&apos;t have an account?{" "}
+            <Link href="/register" className="underline underline-offset-4">
               Sign up
             </Link>
           </p>
         </div>
 
-        {/* ───── Terms ───── */}
-        <p
-          className="text-xs text-center leading-relaxed px-2"
-          style={{ color: "var(--color-muted-foreground)" }}
-        >
-          By signing in, you agree to use this platform fairly.
-          <br />
-          No spam. One real account per person.
-        </p>
-
-        {/* ───── Feature highlights ───── */}
+        {/* Trust badges */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { icon: "🔒", label: "Secure Drawing" },
+            { icon: "🔒", label: "Secure" },
             { icon: "⚡", label: "Real-time" },
             { icon: "📱", label: "Mobile-first" },
-          ].map(({ icon, label }) => (
-            <div key={label} className="neo-card p-3 text-center">
-              <div className="text-xl mb-1" aria-hidden="true">
-                {icon}
-              </div>
-              <p
-                className="text-xs font-bold"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                {label}
-              </p>
+          ].map((f) => (
+            <div key={f.label} className="brutal rounded-xl bg-card p-3 text-center text-card-foreground">
+              <div className="text-xl">{f.icon}</div>
+              <p className="mt-1 text-xs font-bold">{f.label}</p>
             </div>
           ))}
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

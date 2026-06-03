@@ -1,93 +1,74 @@
 import Link from "next/link";
 import { Users, Trophy, Clock } from "lucide-react";
-import { CountdownTimer } from "@/components/drawing/CountdownTimer";
-import { LocalTime } from "@/components/shared/LocalTime";
 import type { RoomListItem } from "@/lib/types";
+import { formatDeadline } from "@/lib/utils/date";
 
-interface RoomCardProps {
-  room: RoomListItem;
+// Accent colour palette — matches Lovable's accentBg map
+const ACCENT_COLORS: Record<string, string> = {
+  lime: "bg-lime text-lime-foreground",
+  pink: "bg-pink text-pink-foreground",
+  sky: "bg-sky text-sky-foreground",
+  coin: "bg-coin text-coin-foreground",
+};
+
+/**
+ * Derives a deterministic accent colour from the room ID.
+ */
+function getAccent(id: string): string {
+  const keys = Object.keys(ACCENT_COLORS);
+  const idx = id.charCodeAt(0) % keys.length;
+  return ACCENT_COLORS[keys[idx]] ?? ACCENT_COLORS.lime;
 }
 
-function StateBadge({ state }: { state: string }) {
+export function StateBadge({ state }: { state: string }) {
   if (state === "active")
     return (
-      <span
-        className="brutal-press-sm inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold"
-        style={{ background: "var(--color-lime)", color: "var(--color-lime-foreground)" }}
-      >
+      <span className="brutal-press-sm inline-flex items-center gap-1 rounded-full bg-lime px-2.5 py-0.5 text-xs font-bold text-lime-foreground">
         🟢 Active
       </span>
     );
   if (state === "drawing")
     return (
-      <span
-        className="brutal-press-sm inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold"
-        style={{ background: "var(--color-pink)", color: "var(--color-pink-foreground)" }}
-      >
+      <span className="brutal-press-sm inline-flex items-center gap-1 rounded-full bg-pink px-2.5 py-0.5 text-xs font-bold text-pink-foreground">
         🎰 Drawing
       </span>
     );
   return (
-    <span
-      className="brutal-press-sm inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold"
-      style={{ background: "white", color: "var(--color-foreground)", border: "2px solid var(--color-border)" }}
-    >
+    <span className="brutal-press-sm inline-flex items-center gap-1 rounded-full bg-card px-2.5 py-0.5 text-xs font-bold text-card-foreground">
       ✅ Finished
     </span>
   );
 }
 
-/**
- * RoomCard — Server Component.
- * Neobrutalist redesign matching Lovable reference design.
- */
-export function RoomCard({ room }: RoomCardProps) {
+export function RoomCard({ room, index = 0 }: { room: RoomListItem; index?: number }) {
+  const accentClass = getAccent(room.id);
+
   return (
     <Link
       href={`/rooms/${room.id}`}
       id={`room-card-${room.id}`}
-      className="brutal-press block rounded-2xl p-4 focus-visible:outline-4"
-      style={{ background: "white", color: "var(--color-foreground)" }}
-      aria-label={`View room: ${room.title}`}
+      style={{ animationDelay: `${index * 60}ms` }}
+      className="brutal-press animate-rise block rounded-2xl bg-card p-4 text-card-foreground"
     >
-      {/* Top row: icon + badge */}
       <div className="flex items-start justify-between gap-2">
         <span
-          className="brutal flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl text-xl"
-          style={{ background: "var(--color-primary)", color: "var(--color-primary-foreground)" }}
+          className={`brutal flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl font-display text-xl ${accentClass}`}
         >
           🎁
         </span>
         <StateBadge state={room.state} />
       </div>
 
-      {/* Title + host */}
-      <h3
-        className="mt-3 text-lg leading-tight tracking-tight"
-        style={{ fontFamily: "var(--font-display)" }}
-      >
-        {room.title}
-      </h3>
-      <p className="mt-1 text-sm font-medium" style={{ color: "var(--color-muted-foreground)" }}>
-        by {room.host.username}
-      </p>
+      <h3 className="mt-3 font-display text-lg leading-tight tracking-tight">{room.title}</h3>
+      <p className="mt-1 text-sm font-medium text-muted-foreground">by {room.host.username}</p>
 
-      {/* Prize badge + range */}
       <div className="mt-3 flex items-center gap-2">
-        <span
-          className="brutal flex items-center gap-1 rounded-lg px-2.5 py-1 text-sm font-bold"
-          style={{
-            background: "var(--color-coin)",
-            color: "var(--color-coin-foreground)",
-            fontFamily: "var(--font-display)",
-          }}
-        >
-          🪙 {room.min_number}–{room.max_number}
+        <span className="brutal flex items-center gap-1 rounded-lg bg-coin px-2.5 py-1 font-display text-sm text-coin-foreground">
+          🔢 #{room.min_number}–{room.max_number}
         </span>
       </div>
 
-      {/* Stats row */}
-      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs font-bold" style={{ color: "var(--color-muted-foreground)" }}>
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs font-bold text-muted-foreground">
         <span className="flex items-center gap-1">
           <Users className="h-4 w-4" strokeWidth={2.5} /> {room.participant_count}
         </span>
@@ -95,12 +76,7 @@ export function RoomCard({ room }: RoomCardProps) {
           <Trophy className="h-4 w-4" strokeWidth={2.5} /> {room.total_winners} winner{room.total_winners !== 1 ? "s" : ""}
         </span>
         <span className="flex items-center gap-1">
-          <Clock className="h-4 w-4" strokeWidth={2.5} />
-          {room.state === "active" ? (
-            <CountdownTimer deadline={room.deadline} variant="compact" />
-          ) : (
-            <LocalTime iso={room.deadline} format="deadline" />
-          )}
+          <Clock className="h-4 w-4" strokeWidth={2.5} /> {formatDeadline(room.deadline)}
         </span>
       </div>
     </Link>

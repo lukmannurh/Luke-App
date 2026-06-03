@@ -2,69 +2,91 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LayoutGrid, History, User, Plus } from "lucide-react";
 
-const NAV_ITEMS = [
-  { href: "/", label: "Home", icon: "🏠", id: "mobile-nav-home" },
-  { href: "/rooms/create", label: "Create", icon: "➕", id: "mobile-nav-create" },
-  { href: "/rooms/history", label: "History", icon: "📜", id: "mobile-nav-history" },
-  { href: "/profile", label: "Profile", icon: "👤", id: "mobile-nav-profile" },
+const navItems = [
+  { href: "/rooms", label: "Browse", icon: LayoutGrid, id: "mobile-nav-browse" },
+  { href: "/rooms/history", label: "History", icon: History, id: "mobile-nav-history" },
+  { href: "/profile", label: "Profile", icon: User, id: "mobile-nav-profile" },
 ];
 
 /**
- * MobileNav — bottom navigation bar for mobile viewports.
- * Only visible on small screens (md:hidden).
+ * Lovable-style bottom navigation bar.
+ * Centre slot is the "Create" FAB that lifts above the bar.
  */
-export function MobileNav({ isAdmin }: { isAdmin?: boolean }) {
+export function MobileNav() {
   const pathname = usePathname();
-
-  const activeNavItems = [...NAV_ITEMS];
-  if (isAdmin) {
-    activeNavItems.push({ href: "/admin", label: "Admin", icon: "🛡️", id: "mobile-nav-admin" });
-  }
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 mobile-nav-container"
-      style={{
-        background: "var(--color-background)",
-        borderTop: "3px solid var(--color-border)",
-        boxShadow: "0 -3px 0px var(--color-border)",
-      }}
+      className="sticky bottom-0 z-40 border-t-[3px] border-border bg-background"
       aria-label="Mobile navigation"
     >
-      <ul className="flex items-stretch" role="list">
-        {activeNavItems.map((item) => {
-          const isActive =
-            item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-          return (
-            <li key={item.href} className="flex-1">
-              <Link
-                href={item.href}
-                id={item.id}
-                className="flex flex-col items-center justify-center gap-0.5 py-2 h-14 w-full transition-colors"
-                style={{
-                  background: isActive ? "var(--color-lime)" : "transparent",
-                  borderRight: "1px solid var(--color-border)",
-                }}
-                aria-current={isActive ? "page" : undefined}
-              >
-                <span className="text-xl" aria-hidden="true">
-                  {item.icon}
-                </span>
-                <span
-                  className="text-xs font-bold"
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    color: isActive ? "var(--color-lime-foreground)" : "var(--color-muted-foreground)",
-                  }}
-                >
-                  {item.label}
-                </span>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+      <div className="mx-auto flex max-w-md items-end justify-between gap-2 px-4 py-2">
+        {/* Left: Browse */}
+        <NavTab
+          href={navItems[0].href}
+          label={navItems[0].label}
+          Icon={navItems[0].icon}
+          id={navItems[0].id}
+          active={pathname === "/rooms" || pathname.startsWith("/rooms/") && !pathname.startsWith("/rooms/history") && !pathname.startsWith("/rooms/create")}
+        />
+
+        {/* Centre: Create FAB */}
+        <Link
+          href="/rooms/create"
+          id="mobile-nav-create"
+          className="brutal-press -mt-6 flex h-16 w-16 flex-col items-center justify-center rounded-2xl bg-primary text-primary-foreground"
+          aria-label="Create giveaway"
+        >
+          <Plus className="h-7 w-7" strokeWidth={3} />
+          <span className="font-display text-[10px] leading-none">Create</span>
+        </Link>
+
+        {/* Right: History + Profile */}
+        <NavTab
+          href={navItems[1].href}
+          label={navItems[1].label}
+          Icon={navItems[1].icon}
+          id={navItems[1].id}
+          active={pathname.startsWith("/rooms/history")}
+        />
+        <NavTab
+          href={navItems[2].href}
+          label={navItems[2].label}
+          Icon={navItems[2].icon}
+          id={navItems[2].id}
+          active={pathname.startsWith("/profile")}
+        />
+      </div>
     </nav>
+  );
+}
+
+function NavTab({
+  href,
+  label,
+  Icon,
+  id,
+  active,
+}: {
+  href: string;
+  label: string;
+  Icon: typeof LayoutGrid;
+  id: string;
+  active: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      id={id}
+      className={`flex flex-1 flex-col items-center gap-0.5 rounded-lg py-1 font-display text-[11px] transition-colors ${
+        active ? "text-foreground" : "text-muted-foreground"
+      }`}
+      aria-current={active ? "page" : undefined}
+    >
+      <Icon className={`h-6 w-6 transition-transform ${active ? "scale-110" : ""}`} strokeWidth={2.5} />
+      {label}
+    </Link>
   );
 }

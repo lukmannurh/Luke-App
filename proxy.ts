@@ -42,6 +42,7 @@ export async function proxy(request: NextRequest) {
 
   // Define public routes — everything else requires auth
   const isPublicRoute =
+    pathname === "/" ||         // Landing page — always public
     pathname === "/login" ||
     pathname === "/register" ||
     pathname.startsWith("/api/auth") ||
@@ -58,9 +59,9 @@ export async function proxy(request: NextRequest) {
   }
 
   if (user && (pathname === "/login" || pathname === "/register")) {
-    // Already authenticated user visiting login/register → redirect to home
+    // Already authenticated user visiting login/register → redirect to rooms
     const homeUrl = request.nextUrl.clone();
-    homeUrl.pathname = "/";
+    homeUrl.pathname = "/rooms";
     return NextResponse.redirect(homeUrl);
   }
 

@@ -2,179 +2,277 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@custom-variant dark (&:is(.dark *));
+
 /* ============================================================
-   NEOBRUTALISM DESIGN SYSTEM — Community Giveaway Platform
-   Tailwind CSS v4 theme configuration
+   LOVABLE NEOBRUTALISM DESIGN SYSTEM — 1:1 Clone
+   Variables proxy :root tokens so Tailwind classes resolve correctly.
    ============================================================ */
 
-@theme {
-  /* --- Fonts --- */
-  --font-sans: "Space Grotesk", system-ui, sans-serif;
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  --color-background:        var(--background);
+  --color-foreground:        var(--foreground);
+  --color-card:              var(--card);
+  --color-card-foreground:   var(--card-foreground);
+  --color-popover:           var(--popover);
+  --color-popover-foreground:var(--popover-foreground);
+  --color-primary:           var(--primary);
+  --color-primary-foreground:var(--primary-foreground);
+  --color-secondary:         var(--secondary);
+  --color-secondary-foreground:var(--secondary-foreground);
+  --color-muted:             var(--muted);
+  --color-muted-foreground:  var(--muted-foreground);
+  --color-accent:            var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive:       var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border:            var(--border);
+  --color-input:             var(--input);
+  --color-ring:              var(--ring);
+
+  /* Lovable semantic palette — Tailwind classes: bg-lime, text-lime-foreground, etc. */
+  --color-ink:               var(--ink);
+  --color-lime:              var(--lime);
+  --color-lime-foreground:   var(--lime-foreground);
+  --color-pink:              var(--pink);
+  --color-pink-foreground:   var(--pink-foreground);
+  --color-sky:               var(--sky);
+  --color-sky-foreground:    var(--sky-foreground);
+  --color-coin:              var(--coin);
+  --color-coin-foreground:   var(--coin-foreground);
+
+  /* Brutal shadows — Tailwind classes: shadow-brutal, shadow-brutal-sm, shadow-brutal-lg */
+  --shadow-brutal:    var(--brutal-shadow);
+  --shadow-brutal-sm: var(--brutal-shadow-sm);
+  --shadow-brutal-lg: var(--brutal-shadow-lg);
+
+  /* Fonts — Tailwind classes: font-display, font-sans */
   --font-display: "Archivo Black", system-ui, sans-serif;
-
-  /* --- Core Colors (Lovable Neobrutalism palette) --- */
-  --color-background: #fafafa;
-  --color-foreground: #0a0a0a;
-
-  --color-card: #ffffff;
-  --color-card-foreground: #0a0a0a;
-
-  --color-primary: #f5e642;
-  --color-primary-foreground: #0a0a0a;
-
-  --color-secondary: #ffffff;
-  --color-secondary-foreground: #0a0a0a;
-
-  --color-accent: #6bdb6b;
-  --color-accent-foreground: #0a0a0a;
-
-  --color-destructive: #e63946;
-  --color-destructive-foreground: #ffffff;
-
-  --color-success: #6bdb6b;
-  --color-success-foreground: #0a0a0a;
-
-  --color-warning: #ea580c;
-  --color-warning-foreground: #ffffff;
-
-  --color-muted: #f0efeb;
-  --color-muted-foreground: #737373;
-
-  --color-border: #0a0a0a;
-  --color-input: #fafafa;
-  --color-ring: #0a0a0a;
-
-  /* --- Lovable Semantic Palette --- */
-  --color-ink: #0a0a0a;
-  --color-lime: #c3f53c;
-  --color-lime-foreground: #0a0a0a;
-  --color-pink: #f472b6;
-  --color-pink-foreground: #0a0a0a;
-  --color-sky: #7dd3fc;
-  --color-sky-foreground: #0a0a0a;
-  --color-coin: #fcd34d;
-  --color-coin-foreground: #0a0a0a;
-
-  /* --- Border widths --- */
-  --border-width-3: 3px;
-  --border-width-5: 5px;
-
-  /* --- Neobrutalism box shadows --- */
-  --shadow-neo: 4px 4px 0px #0a0a0a;
-  --shadow-neo-lg: 6px 6px 0px #0a0a0a;
-  --shadow-neo-xl: 8px 8px 0px #0a0a0a;
-  --shadow-neo-primary: 6px 6px 0px #f5e642;
-  --shadow-neo-accent: 6px 6px 0px #6bdb6b;
-  --shadow-neo-success: 6px 6px 0px #6bdb6b;
-  --shadow-neo-destructive: 6px 6px 0px #e63946;
-  --shadow-neo-warning: 6px 6px 0px #ea580c;
-  /* Lovable brutal shadows */
-  --shadow-brutal: 6px 6px 0 0 #0a0a0a;
-  --shadow-brutal-sm: 3px 3px 0 0 #0a0a0a;
-  --shadow-brutal-lg: 10px 10px 0 0 #0a0a0a;
-
-  /* --- Font sizes (min 16px for mobile) --- */
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 1.875rem;
-  --font-size-4xl: 2.25rem;
-  --font-size-5xl: 3rem;
-  --font-size-6xl: 3.75rem;
+  --font-sans:    "Space Grotesk", system-ui, sans-serif;
 }
 
-
-@custom-variant dark (&:is(.dark *));
 
 /* ============================================================
    BASE STYLES
    ============================================================ */
 :root {
-  color-scheme: light;
   --radius: 1rem;
+  --ink: oklch(0 0 0);
+
   --background: oklch(0.96 0.04 95);
   --foreground: oklch(0 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0 0 0);
+
   --primary: oklch(0.86 0.2 95);
   --primary-foreground: oklch(0 0 0);
   --secondary: oklch(1 0 0);
   --secondary-foreground: oklch(0 0 0);
+
   --muted: oklch(0.93 0.02 95);
   --muted-foreground: oklch(0.45 0.02 95);
   --accent: oklch(0.7 0.18 150);
   --accent-foreground: oklch(0 0 0);
   --destructive: oklch(0.62 0.24 27);
+  --destructive-foreground: oklch(1 0 0);
+
   --border: oklch(0 0 0);
   --input: oklch(0 0 0);
   --ring: oklch(0 0 0);
+
+  --lime: oklch(0.85 0.22 130);
+  --lime-foreground: oklch(0 0 0);
+  --pink: oklch(0.75 0.18 0);
+  --pink-foreground: oklch(0 0 0);
+  --sky: oklch(0.78 0.13 230);
+  --sky-foreground: oklch(0 0 0);
+  --coin: oklch(0.82 0.17 75);
+  --coin-foreground: oklch(0 0 0);
+
+  --brutal-shadow: 6px 6px 0 0 var(--ink);
+  --brutal-shadow-sm: 3px 3px 0 0 var(--ink);
+  --brutal-shadow-lg: 10px 10px 0 0 var(--ink);
+
+  /* Chart tokens (kept for admin dashboard) */
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
 }
 
 .dark {
-  color-scheme: dark;
+  --ink: oklch(0 0 0);
+
   --background: oklch(0.2 0.02 270);
   --foreground: oklch(0.98 0 0);
   --card: oklch(0.27 0.03 270);
   --card-foreground: oklch(0.98 0 0);
   --popover: oklch(0.27 0.03 270);
   --popover-foreground: oklch(0.98 0 0);
+
   --primary: oklch(0.86 0.2 95);
   --primary-foreground: oklch(0 0 0);
   --secondary: oklch(0.27 0.03 270);
   --secondary-foreground: oklch(0.98 0 0);
+
   --muted: oklch(0.3 0.03 270);
   --muted-foreground: oklch(0.72 0.02 270);
   --accent: oklch(0.7 0.18 150);
   --accent-foreground: oklch(0 0 0);
   --destructive: oklch(0.62 0.24 27);
+  --destructive-foreground: oklch(1 0 0);
+
   --border: oklch(0 0 0);
   --input: oklch(0 0 0);
   --ring: oklch(0.98 0 0);
+
+  --lime: oklch(0.85 0.22 130);
+  --lime-foreground: oklch(0 0 0);
+  --pink: oklch(0.75 0.18 0);
+  --pink-foreground: oklch(0 0 0);
+  --sky: oklch(0.78 0.13 230);
+  --sky-foreground: oklch(0 0 0);
+  --coin: oklch(0.82 0.17 75);
+  --coin-foreground: oklch(0 0 0);
+
+  --brutal-shadow: 6px 6px 0 0 var(--ink);
+  --brutal-shadow-sm: 3px 3px 0 0 var(--ink);
+  --brutal-shadow-lg: 10px 10px 0 0 var(--ink);
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+  }
 }
 
-html {
-  scroll-behavior: smooth;
-  -webkit-tap-highlight-color: transparent;
+@layer components {
+  /* Neobrutalism press interaction: element pushes down to cover its solid shadow */
+  .brutal {
+    border: 3px solid var(--ink);
+    box-shadow: var(--brutal-shadow);
+    transition: transform 80ms ease, box-shadow 80ms ease;
+  }
+
+  .brutal-press {
+    border: 3px solid var(--ink);
+    box-shadow: var(--brutal-shadow);
+    transition: transform 80ms ease, box-shadow 80ms ease;
+  }
+
+  .brutal-press:active {
+    transform: translate(6px, 6px);
+    box-shadow: 0 0 0 0 var(--ink);
+  }
+
+  .brutal-press-sm {
+    border: 3px solid var(--ink);
+    box-shadow: var(--brutal-shadow-sm);
+    transition: transform 80ms ease, box-shadow 80ms ease;
+  }
+
+  .brutal-press-sm:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 0 var(--ink);
+  }
+
+  /* Desktop hover lift — never overrides the tap-press on active */
+  @media (hover: hover) {
+    .brutal-press:hover:not(:active) {
+      transform: translate(-2px, -2px);
+      box-shadow: var(--brutal-shadow-lg);
+    }
+
+    .brutal-press-sm:hover:not(:active) {
+      transform: translate(-1px, -1px);
+      box-shadow: var(--brutal-shadow);
+    }
+  }
+
+  /* Legacy neo-card classes kept for backward compat (history page, etc.) */
+  .neo-card {
+    background-color: var(--color-card);
+    border: 3px solid var(--color-border);
+    box-shadow: var(--brutal-shadow);
+  }
+
+  .neo-card-hover {
+    background-color: var(--color-card);
+    border: 3px solid var(--color-border);
+    box-shadow: var(--brutal-shadow);
+    transition: transform 80ms ease, box-shadow 80ms ease;
+    cursor: pointer;
+  }
+
+  .neo-card-hover:active {
+    transform: translate(6px, 6px);
+    box-shadow: 0 0 0 0 var(--ink);
+  }
 }
 
-body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
-  font-family: var(--font-sans);
-  font-size: var(--font-size-base);
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Entrance + micro animations */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-  font-weight: 900;
-  line-height: 1.1;
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  70% {
+    transform: scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@utility animate-rise {
+  animation: rise-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@utility animate-pop {
+  animation: pop-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-pop {
+    animation: none;
+  }
 }
 
 /* Focus ring for accessibility */
@@ -184,39 +282,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ============================================================
-   NEOBRUTALISM UTILITY CLASSES
+   NEOBRUTALISM UTILITY CLASSES (legacy — kept for old pages)
    ============================================================ */
-
-/* --- Cards --- */
-.neo-card {
-  background-color: var(--color-background);
-  border: 3px solid var(--color-border);
-  box-shadow: var(--shadow-neo);
-}
-
-.neo-card-lg {
-  background-color: var(--color-background);
-  border: 3px solid var(--color-border);
-  box-shadow: var(--shadow-neo-lg);
-}
-
-.neo-card-hover {
-  background-color: var(--color-background);
-  border: 3px solid var(--color-border);
-  box-shadow: var(--shadow-neo);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-  cursor: pointer;
-}
-
-.neo-card-hover:hover {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0px var(--color-border);
-}
-
-.neo-card-hover:active {
-  transform: translate(4px, 4px);
-  box-shadow: none;
-}
 
 /* --- Lovable Brutal interaction classes --- */
 .brutal {

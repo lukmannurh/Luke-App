@@ -1,44 +1,29 @@
 import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
-import { Footer } from "@/components/layout/Footer";
-import { createClient } from "@/lib/supabase/server";
 
-// Layout fetches user role via Supabase cookies — must be dynamic
+// Layout fetches user profile via Supabase cookies — must be dynamic
 export const dynamic = "force-dynamic";
 
-
 /**
- * Dashboard layout — wraps all authenticated pages.
+ * Dashboard layout — Lovable AppShell style.
+ * Header (sticky top) + main content (max-w-md centered) + MobileNav (sticky bottom).
  * Auth protection is handled by proxy.ts middleware.
  */
-export default async function DashboardLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  let isAdmin = false;
-  if (user) {
-    const { data: profile } = await supabase
-      .from("users")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-    if ((profile as any)?.role === "admin") {
-      isAdmin = true;
-    }
-  }
-
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex min-h-screen flex-col bg-background">
       <Header />
-      <main id="main-content" className="flex-1 max-w-5xl w-full mx-auto px-4 py-6 pb-20 md:pb-6">
+      <main
+        id="main-content"
+        className="animate-rise mx-auto w-full max-w-md flex-1 px-4 py-5 pb-24"
+      >
         {children}
       </main>
-      <Footer />
-      <MobileNav isAdmin={isAdmin} />
+      <MobileNav />
     </div>
   );
 }

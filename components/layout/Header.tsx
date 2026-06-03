@@ -1,14 +1,14 @@
 import Link from "next/link";
+import { Gift } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { UserMenu } from "@/components/auth/UserMenu";
-import { SignInButton } from "@/components/auth/SignInButton";
 import type { User } from "@/lib/types";
-import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { InstallPWA } from "@/components/ui/InstallPWA";
+import { ThemeToggleButton } from "@/components/theme/ThemeToggleButton";
+import { UserMenu } from "@/components/auth/UserMenu";
 
 /**
- * Header — Server Component.
- * Fetches the current user server-side and renders either UserMenu or a sign-in link.
+ * AppHeader — Lovable-style sticky header.
+ * Shows: DrawUp logo | coin balance + theme toggle (right side).
+ * Server Component: fetches user/profile for coin display.
  */
 export async function Header() {
   const supabase = await createClient();
@@ -23,91 +23,39 @@ export async function Header() {
       .select("*")
       .eq("id", authUser.id)
       .single();
-      
-    if (data) {
-      profile = data as User;
-    } else {
-      // Fallback if user exists in auth but not in our public.users table yet
-      profile = {
-        id: authUser.id,
-        email: authUser.email || "",
-        username: authUser.user_metadata?.full_name || authUser.email?.split("@")[0] || "User",
-        avatar_url: authUser.user_metadata?.avatar_url || null,
-        created_at: authUser.created_at,
-        credits: authUser.user_metadata?.is_guest ? 20 : 100,
-      };
-    }
+    profile = data as User | null;
   }
 
   return (
-    <header
-      className="sticky top-0 z-40 w-full"
-      style={{
-        background: "var(--color-background)",
-        borderBottom: "3px solid var(--color-border)",
-      }}
-    >
-      <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 border-b-[3px] border-border bg-background">
+      <div className="mx-auto flex max-w-md items-center justify-between gap-2 px-4 py-3">
         {/* Logo */}
-        <Link
-          href="/"
-          id="header-logo"
-          className="flex items-center gap-2 text-decoration-none"
-          aria-label="Giveaway App home"
-        >
-          <span
-            className="brutal flex items-center justify-center w-10 h-10 text-base rounded-xl"
-            style={{ background: "var(--color-lime)", color: "var(--color-lime-foreground)" }}
-            aria-hidden="true"
-          >
-            🎁
+        <Link href="/rooms" className="flex items-center gap-2" id="header-logo" aria-label="DrawUp home">
+          <span className="brutal flex h-10 w-10 items-center justify-center rounded-xl bg-lime text-lime-foreground">
+            <Gift className="h-5 w-5" strokeWidth={2.5} />
           </span>
-          <span
-            className="font-bold text-lg hidden sm:block tracking-tight"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            DrawUp
-          </span>
+          <span className="font-display text-lg leading-none tracking-tight">DrawUp</span>
         </Link>
 
-        {/* Nav links — desktop only */}
-        <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
-          <Link href="/" className="neo-btn neo-btn-ghost neo-btn-sm" id="nav-home">
-            Home
-          </Link>
-          <Link href="/rooms/create" className="neo-btn neo-btn-ghost neo-btn-sm" id="nav-create">
-            Create
-          </Link>
-          <Link href="/rooms/history" className="neo-btn neo-btn-ghost neo-btn-sm" id="nav-history">
-            History
-          </Link>
-          {(profile as any)?.role === "admin" && (
-            <Link href="/admin" className="neo-btn neo-btn-primary neo-btn-sm ml-2" id="nav-admin">
-              Admin
+        {/* Right: coin balance + theme */}
+        <div className="flex items-center gap-2">
+          {profile && (
+            <span className="brutal flex h-10 items-center gap-1 rounded-xl bg-coin px-3 font-display text-sm text-coin-foreground">
+              🪙 {profile.credits.toLocaleString()}
+            </span>
+          )}
+          <ThemeToggleButton />
+          {profile ? (
+            <UserMenu user={profile} />
+          ) : (
+            <Link
+              href="/login"
+              id="header-signin"
+              className="brutal-press-sm flex h-10 items-center rounded-xl bg-primary px-3 font-display text-sm text-primary-foreground"
+            >
+              Sign in
             </Link>
           )}
-        </nav>
-
-        {/* Right side */}
-        <div className="flex items-center gap-2">
-          {profile ? (
-            <>
-              <div
-                className="brutal-press-sm flex items-center gap-1 font-bold text-sm rounded-lg px-3 py-1.5"
-                style={{ background: "var(--color-coin)", color: "var(--color-coin-foreground)" }}
-              >
-                <span>🪙</span>
-                <span style={{ fontFamily: "var(--font-display)" }}>{profile.credits}</span>
-              </div>
-              <UserMenu user={profile} />
-            </>
-          ) : (
-            <SignInButton />
-          )}
-          <InstallPWA />
-          <div className="ml-2">
-            <ThemeToggle />
-          </div>
         </div>
       </div>
     </header>

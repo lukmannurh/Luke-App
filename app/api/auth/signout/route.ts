@@ -36,5 +36,5 @@ export async function POST(request: NextRequest) {
     // Still redirect — the client-side session is cleared regardless
   }
 
-  return NextResponse.redirect(`${origin}/login`);
+  return NextResponse.redirect(`${origin}/`);
 }

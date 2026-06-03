@@ -1,41 +1,37 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft, Users, Trophy, Clock, Crown } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getRoomById } from "@/lib/services/rooms.service";
 import { WinnerDisplay } from "@/components/drawing/WinnerDisplay";
 import { ParticipantList } from "@/components/participants/ParticipantList";
 import { DeleteRoomButton } from "@/components/rooms/DeleteRoomButton";
 import { RoomDetailClient } from "@/components/rooms/RoomDetailClient";
+import { StateBadge } from "@/components/rooms/RoomCard";
 import { formatDeadline } from "@/lib/utils/date";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-// Room data is user-specific and requires cookies — must be dynamic
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const supabase = await createClient();
   const room = await getRoomById(supabase, id).catch(() => null);
-
-  if (!room) return { title: "Room Not Found — Giveaway App" };
-
+  if (!room) return { title: "Room Not Found — DrawUp" };
   return {
-    title: `${room.title} — Giveaway App`,
+    title: `${room.title} — DrawUp`,
     description: room.description,
   };
 }
 
 /**
- * Room Detail Page — Server Component.
- *
- * Renders different UI based on room state:
- * - active:   RoomDetailClient (number selection, realtime, countdown)
- * - drawing:  RoomDetailClient (triggers DrawingAnimation)
- * - finished: WinnerDisplay + ParticipantList (static, server-rendered)
+ * Room Detail Page — Lovable UI + existing backend logic preserved.
+ * - active/drawing: RoomDetailClient (number picker, realtime, countdown)
+ * - finished: WinnerDisplay + ParticipantList (static server-rendered)
  */
 export default async function RoomDetailPage({ params }: PageProps) {
   const { id } = await params;
@@ -50,141 +46,126 @@ export default async function RoomDetailPage({ params }: PageProps) {
 
   const currentUserId = authResult.data.user?.id ?? "";
   const isHost = currentUserId === room.host_id;
-
-  // Taken numbers from existing participants
   const takenNumbers = room.participants.map((p) => p.selected_number);
 
+  // Accent colour from room id
+  const accentOptions = [
+    "bg-lime text-lime-foreground",
+    "bg-pink text-pink-foreground",
+    "bg-sky text-sky-foreground",
+    "bg-coin text-coin-foreground",
+  ];
+  const accentClass = accentOptions[room.id.charCodeAt(0) % accentOptions.length];
+
   return (
-    <div className="max-w-2xl mx-auto">
-      {/* Breadcrumb */}
-      <nav aria-label="Breadcrumb" className="mb-4">
-        <ol className="flex items-center gap-2 text-sm font-medium flex-wrap">
-          <li>
-            <Link
-              href="/"
-              className="underline underline-offset-2"
-              style={{ color: "var(--color-primary)" }}
-            >
-              Home
-            </Link>
-          </li>
-          <li aria-hidden="true" style={{ color: "var(--color-muted-foreground)" }}>›</li>
-          <li
-            className="truncate max-w-[200px]"
-            aria-current="page"
-            style={{ color: "var(--color-muted-foreground)" }}
+    <>
+      {/* Back link */}
+      <Link
+        href="/rooms"
+        className="inline-flex items-center gap-1 font-display text-sm text-muted-foreground"
+      >
+        <ArrowLeft className="h-4 w-4" strokeWidth={2.5} /> Browse
+      </Link>
+
+      {/* Room info card */}
+      <div className="brutal mt-3 rounded-2xl bg-card p-5 text-card-foreground">
+        <div className="flex items-start justify-between gap-2">
+          <span
+            className={`brutal flex h-12 w-12 items-center justify-center rounded-xl font-display text-xl ${accentClass}`}
           >
-            {room.title}
-          </li>
-        </ol>
-      </nav>
-
-      {/* Room header */}
-      <div className="neo-card p-6 mb-6">
-        <div className="flex items-start justify-between gap-3 flex-wrap">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              {/* State badge */}
-              {room.state === "active" && (
-                <span className="neo-badge neo-badge-active">🟢 Active</span>
-              )}
-              {room.state === "drawing" && (
-                <span className="neo-badge neo-badge-drawing">🎰 Drawing!</span>
-              )}
-              {room.state === "finished" && (
-                <span className="neo-badge neo-badge-finished">✅ Finished</span>
-              )}
-              {isHost && (
-                <span className="neo-badge neo-badge-muted text-xs">👑 You're the host</span>
-              )}
-            </div>
-
-            <h1
-              className="text-2xl sm:text-3xl font-black leading-tight"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              {room.title}
-            </h1>
-
-            <p className="mt-1 text-sm" style={{ color: "var(--color-muted-foreground)" }}>
-              by{" "}
-              <strong className="font-bold">{room.host.username}</strong>
-            </p>
+            🎁
+          </span>
+          <div className="flex items-center gap-2">
+            <StateBadge state={room.state} />
+            {isHost && (
+              <span className="brutal-press-sm inline-flex items-center gap-1 rounded-full bg-coin px-2.5 py-0.5 text-xs font-bold text-coin-foreground">
+                👑 Host
+              </span>
+            )}
           </div>
-
-          {/* Host actions */}
-          {isHost && room.state === "active" && (
-            <DeleteRoomButton roomId={room.id} roomTitle={room.title} />
-          )}
         </div>
 
-        {/* Description */}
+        <h1 className="mt-3 font-display text-2xl leading-tight tracking-tight">{room.title}</h1>
+        <p className="mt-1 text-sm font-medium text-muted-foreground">by {room.host.username}</p>
         <p className="mt-3 text-sm leading-relaxed">{room.description}</p>
 
-        {/* Meta row */}
+        {/* Meta badges */}
         <div className="mt-4 flex flex-wrap gap-2">
-          <span className="neo-badge bg-[var(--color-accent)] text-xs border border-[var(--color-border)]">
-            💰 Prize Pool: 10 Credits
+          <span className="brutal flex items-center gap-1 rounded-lg bg-coin px-2.5 py-1 font-display text-sm text-coin-foreground">
+            🪙 10 credits
           </span>
-          <span className="neo-badge neo-badge-muted text-xs">
-            🔢 {room.min_number}–{room.max_number}
-          </span>
-          <span className="neo-badge neo-badge-muted text-xs">
-            🏆 {room.total_winners} winner{room.total_winners !== 1 ? "s" : ""}
-          </span>
-          <span className="neo-badge neo-badge-muted text-xs">
-            👥 {room.participant_count} participant{room.participant_count !== 1 ? "s" : ""}
-          </span>
-          <span className="neo-badge neo-badge-muted text-xs">
-            📅 {formatDeadline(room.deadline)}
-          </span>
+          <MetaBadge icon={<Users className="h-4 w-4" strokeWidth={2.5} />} text={`${room.participant_count}`} />
+          <MetaBadge
+            icon={<Trophy className="h-4 w-4" strokeWidth={2.5} />}
+            text={`${room.total_winners} winner${room.total_winners !== 1 ? "s" : ""}`}
+          />
+          <MetaBadge
+            icon={<Clock className="h-4 w-4" strokeWidth={2.5} />}
+            text={formatDeadline(room.deadline)}
+          />
         </div>
+
+        {/* Host delete action */}
+        {isHost && room.state === "active" && (
+          <div className="mt-4">
+            <DeleteRoomButton roomId={room.id} roomTitle={room.title} />
+          </div>
+        )}
       </div>
 
       {/* State-based body */}
       {room.state === "finished" ? (
-        /* Finished: static server-rendered winner display */
-        <div className="space-y-6">
-          <WinnerDisplay
-            room={{
-              id: room.id,
-              title: room.title,
-              host: room.host,
-              drawingCompletedAt: room.drawing_completed_at,
-              drawingParticipantCount: room.drawing_participant_count,
-            }}
-            winners={room.winners.map((w) => ({
-              userId: w.user_id,
-              username: w.user.username,
-              avatarUrl: w.user.avatar_url,
-              selectedNumber: w.selected_number,
-              sequence: w.sequence,
-            }))}
-            currentUserId={currentUserId}
-          />
-
-          {/* Full participant list */}
-          <section aria-label="All participants">
-            <h2
-              className="font-black text-base mb-3"
-              style={{ fontFamily: "var(--font-display)" }}
-            >
-              All Participants
-            </h2>
-            <ParticipantList
-              participants={room.participants}
+        <>
+          {/* Winners */}
+          <section className="mt-5">
+            <h2 className="font-display text-lg">🏆 Winners</h2>
+            <WinnerDisplay
+              room={{
+                id: room.id,
+                title: room.title,
+                host: room.host,
+                drawingCompletedAt: room.drawing_completed_at,
+                drawingParticipantCount: room.drawing_participant_count,
+              }}
+              winners={room.winners.map((w) => ({
+                userId: w.user_id,
+                username: w.user.username,
+                avatarUrl: w.user.avatar_url,
+                selectedNumber: w.selected_number,
+                sequence: w.sequence,
+              }))}
               currentUserId={currentUserId}
             />
           </section>
-        </div>
+
+          {/* All participants */}
+          <section className="mt-6">
+            <h2 className="font-display text-lg">Participants</h2>
+            <div className="mt-3">
+              <ParticipantList
+                participants={room.participants}
+                currentUserId={currentUserId}
+              />
+            </div>
+          </section>
+        </>
       ) : (
-        /* Active / Drawing: interactive Client Component */
+        /* Active / Drawing: interactive Client Component (number picker, countdown, realtime) */
         <RoomDetailClient
           room={room}
           currentUserId={currentUserId}
           takenNumbers={takenNumbers}
         />
       )}
-    </div>
+    </>
+  );
+}
+
+function MetaBadge({ icon, text }: { icon: React.ReactNode; text: string }) {
+  return (
+    <span className="brutal-press-sm flex items-center gap-1 rounded-lg bg-card px-2.5 py-1 text-xs font-bold text-card-foreground">
+      {icon}
+      {text}
+    </span>
   );
 }
