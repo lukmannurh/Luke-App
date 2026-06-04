@@ -123,7 +123,7 @@ export function DeleteRoomButton({ roomId, roomTitle, isFinished }: DeleteRoomBu
         e.stopPropagation();
         setConfirming(true);
       }}
-      className="neo-btn neo-btn-destructive neo-btn-sm"
+      className="brutal-press bg-destructive text-destructive-foreground border-2 border-border font-bold rounded-lg text-xs px-2 py-1 hover:translate-y-[2px] hover:shadow-none transition-all shadow-[2px_2px_0px_var(--color-border)]"
       aria-label={`Delete room "${roomTitle}"`}
     >
       🗑️ Delete Room

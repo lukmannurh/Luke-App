@@ -48,7 +48,7 @@ export function RoomCard({ room, index = 0 }: { room: RoomListItem; index?: numb
       href={`/rooms/${room.id}`}
       id={`room-card-${room.id}`}
       style={{ animationDelay: `${index * 60}ms` }}
-      className="brutal-press animate-rise block rounded-2xl bg-card p-4 text-card-foreground"
+      className="brutal-press animate-rise block rounded-2xl bg-card p-4 pr-28 text-card-foreground"
     >
       <div className="flex items-start justify-between gap-2">
         <span

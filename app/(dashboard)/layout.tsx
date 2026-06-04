@@ -16,10 +16,10 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
   let isAdmin = false;
-  if (user) {
-    const { data } = await supabase.from('users').select('role').eq('id', user.id).single();
+  if (session?.user) {
+    const { data } = await supabase.from('users').select('role').eq('id', session.user.id).single();
     const profile = data as { role: string } | null;
     isAdmin = profile?.role === 'admin';
   }

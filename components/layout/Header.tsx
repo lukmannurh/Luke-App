@@ -13,15 +13,15 @@ import { UserMenu } from "@/components/auth/UserMenu";
 export async function Header() {
   const supabase = await createClient();
   const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
   let profile: User | null = null;
-  if (authUser) {
+  if (session?.user) {
     const { data } = await supabase
       .from("users")
       .select("*")
-      .eq("id", authUser.id)
+      .eq("id", session.user.id)
       .single();
     profile = data as User | null;
   }
@@ -38,8 +38,8 @@ export async function Header() {
         {/* Right: coin balance + theme */}
         <div className="flex items-center gap-2">
           {profile && (
-            <span className="brutal flex h-10 items-center gap-1 rounded-xl bg-coin px-3 font-display text-sm text-coin-foreground">
-              🪙 {Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(profile.credits)}
+            <span className="brutal flex items-center font-bold px-3 py-1 rounded-xl bg-coin text-sm text-coin-foreground">
+              {Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(profile.credits)} Credits
             </span>
           )}
           <ThemeToggleButton />

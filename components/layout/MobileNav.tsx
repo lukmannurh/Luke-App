@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, History, User, Plus, ShieldAlert } from "lucide-react";
+import { LayoutGrid, History, User, Plus, ShieldAlert, MessageCircle } from "lucide-react";
 import { InstallPWA } from "@/components/ui/InstallPWA";
 
 const navItems = [
@@ -36,15 +36,15 @@ export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
           active={pathname === "/rooms" || pathname.startsWith("/rooms/") && !pathname.startsWith("/rooms/history") && !pathname.startsWith("/rooms/create")}
         />
 
-        {/* Centre: Create FAB */}
+        {/* Centre: Chat FAB */}
         <Link
-          href="/rooms/create"
-          id="mobile-nav-create"
+          href="/chat"
+          id="mobile-nav-chat"
           className="brutal-press -mt-6 -translate-y-4 flex h-16 w-16 flex-col items-center justify-center rounded-2xl bg-lime text-lime-foreground shadow-xl shadow-lime/20"
-          aria-label="Create giveaway"
+          aria-label="Global Chat"
         >
-          <Plus className="h-7 w-7" strokeWidth={3} />
-          <span className="font-display text-[10px] leading-none">Create</span>
+          <MessageCircle className="h-7 w-7" strokeWidth={3} />
+          <span className="font-display text-[10px] leading-none">Chat</span>
         </Link>
 
         {/* Right: History + Profile + Admin */}
