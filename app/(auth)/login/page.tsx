@@ -78,14 +78,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           {/* Google OAuth */}
           <LoginButton redirectTo={params.redirectedFrom ?? "/rooms"} />
 
-          {/* Guest */}
-          <Link
-            href={`/rooms${params.redirectedFrom ? `?from=${params.redirectedFrom}` : ""}`}
-            className="brutal-press flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-lime font-display text-lime-foreground"
-          >
-            <Zap className="h-5 w-5" strokeWidth={2.5} />
-            Play as Guest
-          </Link>
+
 
           {/* Divider */}
           <div className="flex items-center gap-3" aria-hidden="true">

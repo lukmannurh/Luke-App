@@ -104,7 +104,7 @@ export default function GlobalChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] -mx-4 -mt-5 relative bg-background">
+    <div className="flex flex-col w-full flex-1 -mx-4 -mt-5 relative bg-background" style={{ minHeight: "calc(100vh - 120px)" }}>
       {/* Header */}
       <div className="brutal shrink-0 bg-card p-4 border-b-[3px] border-border z-10 sticky top-0">
         <h1 className="font-display font-black text-2xl leading-tight">🌍 Global Chat</h1>
