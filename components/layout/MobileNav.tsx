@@ -1,12 +1,14 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, History, User, Plus, ShieldAlert, MessageCircle } from "lucide-react";
+import { Home, History, User, ShieldAlert, MessageCircle } from "lucide-react";
 import { InstallPWA } from "@/components/ui/InstallPWA";
+import { createClient } from "@/lib/supabase/client";
 
 const navItems = [
-  { href: "/rooms", label: "Browse", icon: LayoutGrid, id: "mobile-nav-browse" },
+  { href: "/rooms", label: "Home", icon: Home, id: "mobile-nav-home" },
   { href: "/rooms/history", label: "History", icon: History, id: "mobile-nav-history" },
   { href: "/profile", label: "Profile", icon: User, id: "mobile-nav-profile" },
   { href: "/admin", label: "Admin", icon: ShieldAlert, id: "mobile-nav-admin" },
@@ -18,8 +20,39 @@ const navItems = [
  */
 export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+  const [hasUnread, setHasUnread] = useState(false);
+  const supabase = createClient();
+
+  useEffect(() => {
+    // Clear unread badge if we are on chat
+    if (pathname === "/chat") {
+      setHasUnread(false);
+    }
+  }, [pathname]);
+
+  useEffect(() => {
+    // Subscribe to global chat
+    const channel = supabase
+      .channel("mobile-nav-chat")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "global_chat" },
+        (payload) => {
+          if (pathname !== "/chat") {
+            setHasUnread(true);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [pathname, supabase]);
 
   if (pathname === "/") return null;
+
+  const isChatActive = pathname === "/chat";
 
   return (
     <nav
@@ -27,7 +60,7 @@ export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
       aria-label="Mobile navigation"
     >
       <div className="mx-auto flex max-w-md items-end justify-between gap-2 px-4 py-2">
-        {/* Left: Browse */}
+        {/* Left: Home */}
         <NavTab
           href={navItems[0].href}
           label={navItems[0].label}
@@ -40,11 +73,18 @@ export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
         <Link
           href="/chat"
           id="mobile-nav-chat"
-          className="brutal-press -mt-6 -translate-y-4 flex h-16 w-16 flex-col items-center justify-center rounded-2xl bg-lime text-lime-foreground shadow-xl shadow-lime/20"
+          className={`flex h-16 w-16 flex-col items-center justify-center rounded-2xl transition-all relative ${
+            isChatActive
+              ? "brutal-press -mt-6 -translate-y-4 bg-lime text-lime-foreground shadow-lg scale-110"
+              : "bg-transparent text-muted-foreground hover:text-foreground"
+          }`}
           aria-label="Global Chat"
         >
-          <MessageCircle className="h-7 w-7" strokeWidth={3} />
-          <span className="font-display text-[10px] leading-none">Chat</span>
+          <MessageCircle className="h-7 w-7" strokeWidth={isChatActive ? 3 : 2.5} />
+          <span className="font-display text-[10px] leading-none mt-1">Chat</span>
+          {hasUnread && (
+            <span className="absolute top-2 right-2 h-3 w-3 rounded-full bg-[#FF4500] border-2 border-black"></span>
+          )}
         </Link>
 
         {/* Right: History + Profile + Admin */}
@@ -90,7 +130,7 @@ function NavTab({
 }: {
   href: string;
   label: string;
-  Icon: typeof LayoutGrid;
+  Icon: any;
   id: string;
   active: boolean;
 }) {
@@ -99,7 +139,7 @@ function NavTab({
       href={href}
       id={id}
       className={`flex flex-1 flex-col items-center gap-0.5 rounded-lg py-1 font-display text-[11px] transition-colors ${
-        active ? "text-foreground" : "text-muted-foreground"
+        active ? "text-foreground brutal bg-card border-border shadow-neo-sm" : "text-muted-foreground hover:text-foreground"
       }`}
       aria-current={active ? "page" : undefined}
     >

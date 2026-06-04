@@ -30,13 +30,13 @@ export async function Header() {
     <header className="fixed top-0 left-0 right-0 w-full z-50 border-b-[3px] border-border bg-background">
       <div className="mx-auto flex max-w-md items-center justify-between gap-2 px-4 py-3">
         {/* Logo */}
-        <Link href="/rooms" className="flex items-center gap-2" id="header-logo" aria-label="Giveaway App home">
-          <Image src="/Luke.png" alt="Giveaway App" width={40} height={40} className="rounded-xl object-cover flex-shrink-0" />
-          <span className="font-display text-lg leading-none tracking-tight whitespace-nowrap">Giveaway App</span>
+        <Link href="/rooms" className="flex items-center gap-2" id="header-logo" aria-label="Luke App home">
+          <Image src="/Luke.png" alt="Luke App" width={40} height={40} className="rounded-xl object-cover flex-shrink-0" />
+          <span className="font-display text-lg leading-none tracking-tight whitespace-nowrap">Luke App</span>
         </Link>
 
         {/* Right: coin balance + theme */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 pr-2">
           {profile && (
             <span className="brutal flex items-center font-bold px-3 py-1 rounded-xl bg-coin text-sm text-coin-foreground">
               {Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(profile.credits)} Credits
