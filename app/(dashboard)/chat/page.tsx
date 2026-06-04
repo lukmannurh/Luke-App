@@ -104,7 +104,7 @@ export default function GlobalChatPage() {
   }
 
   return (
-    <div className="flex flex-col w-full h-[calc(100dvh-12rem)] relative bg-background">
+    <div className="flex flex-col w-full min-h-[100dvh] relative bg-background">
       {/* Header */}
       <div className="brutal shrink-0 bg-card p-4 border-b-[3px] border-border z-10 sticky top-0">
         <h1 className="font-display font-black text-2xl leading-tight">🌍 Global Chat</h1>
@@ -149,7 +149,7 @@ export default function GlobalChatPage() {
       </div>
 
       {/* Input */}
-      <div className="absolute bottom-0 left-0 right-0 p-3 bg-background border-t-[3px] border-border z-20">
+      <div className="sticky bottom-0 left-0 right-0 p-3 bg-background border-t-[3px] border-border z-20">
         <form onSubmit={handleSend} className="flex gap-2">
           <input
             type="text"
