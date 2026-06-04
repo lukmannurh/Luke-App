@@ -27,7 +27,7 @@ export async function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b-[3px] border-border bg-background">
+    <header className="fixed top-0 left-0 right-0 w-full z-50 border-b-[3px] border-border bg-background">
       <div className="mx-auto flex max-w-md items-center justify-between gap-2 px-4 py-3">
         {/* Logo */}
         <Link href="/rooms" className="flex items-center gap-2" id="header-logo" aria-label="Giveaway App home">

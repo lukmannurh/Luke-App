@@ -23,7 +23,7 @@ export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
 
   return (
     <nav
-      className="sticky bottom-0 z-40 border-t-[3px] border-border bg-background"
+      className="fixed bottom-0 left-0 right-0 w-full z-50 border-t-[3px] border-border bg-background"
       aria-label="Mobile navigation"
     >
       <div className="mx-auto flex max-w-md items-end justify-between gap-2 px-4 py-2">

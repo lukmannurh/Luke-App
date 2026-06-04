@@ -24,11 +24,11 @@ export default async function DashboardLayout({
     isAdmin = profile?.role === 'admin';
   }
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-background w-full max-w-full overflow-x-hidden">
       <Header />
       <main
         id="main-content"
-        className="animate-rise mx-auto w-full max-w-md flex-1 px-4 py-5 pb-24"
+        className="animate-rise mx-auto w-full max-w-md flex-1 pt-24 pb-28 px-4"
       >
         {children}
       </main>

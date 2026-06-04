@@ -48,11 +48,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn(spaceGrotesk.variable, archivoBlack.variable)} suppressHydrationWarning>
+    <html lang="en" className={cn(spaceGrotesk.variable, archivoBlack.variable, "w-full max-w-full overflow-x-hidden")} suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
-      <body className="antialiased min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)] transition-colors duration-300">
+      <body className="antialiased min-h-screen bg-[var(--color-background)] text-[var(--color-foreground)] transition-colors duration-300 w-full max-w-full overflow-x-hidden">
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
