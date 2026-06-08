@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Send, Reply, X, SmilePlus } from "lucide-react";
+import { Send, Reply, X, SmilePlus, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import { LocalTime } from "@/components/shared/LocalTime";
 
@@ -51,8 +51,40 @@ export default function GlobalChatPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
   const [activePopoverMsgId, setActivePopoverMsgId] = useState<string | null>(null);
+  const [showScrollArrow, setShowScrollArrow] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
   const supabase = createClient();
+
+  const handlePointerDown = (msgId: string) => {
+    if (longPressTimer.current) clearTimeout(longPressTimer.current);
+    longPressTimer.current = setTimeout(() => {
+      setActivePopoverMsgId(msgId);
+    }, 400);
+  };
+
+  const handlePointerUpOrLeave = () => {
+    if (longPressTimer.current) clearTimeout(longPressTimer.current);
+  };
+
+  const handleScroll = () => {
+    if (!scrollRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+    if (scrollHeight - scrollTop - clientHeight > 300) {
+      setShowScrollArrow(true);
+    } else {
+      setShowScrollArrow(false);
+    }
+  };
+
+  const scrollToBottom = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  };
 
   useEffect(() => {
     async function loadData() {
@@ -178,7 +210,11 @@ export default function GlobalChatPage() {
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-5 pb-12">
+      <div 
+        ref={scrollRef} 
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto px-4 py-4 space-y-5 pb-12 scroll-smooth"
+      >
         {isLoading ? (
           <div className="text-center font-bold text-muted-foreground mt-10 animate-pulse">Loading messages...</div>
         ) : messages.length === 0 ? (
@@ -227,13 +263,22 @@ export default function GlobalChatPage() {
                   <div className="relative group flex items-center gap-2">
                     {isMe && (
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                        <button onClick={() => setReplyingTo(msg)} className="p-1 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800" aria-label="Reply">
-                          <Reply className="w-4 h-4 text-muted-foreground" />
+                        <button onClick={() => setReplyingTo(msg)} className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800" aria-label="Reply">
+                          <Reply className="w-5 h-5 text-muted-foreground" />
                         </button>
                       </div>
                     )}
                     <div
-                      className={`brutal px-3 py-2 text-sm font-medium relative ${
+                      onPointerDown={() => handlePointerDown(msg.id)}
+                      onPointerUp={handlePointerUpOrLeave}
+                      onPointerLeave={handlePointerUpOrLeave}
+                      onContextMenu={(e) => {
+                        // Prevent native context menu on long press on mobile
+                        if (window.matchMedia("(max-width: 768px)").matches) {
+                          e.preventDefault();
+                        }
+                      }}
+                      className={`brutal px-3 py-2 text-sm font-medium relative select-none ${
                         isMe ? "bg-lime text-lime-foreground rounded-2xl rounded-tr-sm" : "bg-white text-zinc-900 rounded-2xl rounded-tl-sm dark:text-zinc-900"
                       }`}
                       style={{ wordBreak: "break-word" }}
@@ -267,8 +312,8 @@ export default function GlobalChatPage() {
                     </div>
                     {!isMe && (
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                        <button onClick={() => setReplyingTo(msg)} className="p-1 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800" aria-label="Reply">
-                          <Reply className="w-4 h-4 text-muted-foreground" />
+                        <button onClick={() => setReplyingTo(msg)} className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800" aria-label="Reply">
+                          <Reply className="w-5 h-5 text-muted-foreground" />
                         </button>
                       </div>
                     )}
@@ -301,6 +346,17 @@ export default function GlobalChatPage() {
           })
         )}
       </div>
+
+      {/* Floating Scroll to Bottom Arrow */}
+      {showScrollArrow && (
+        <button
+          onClick={scrollToBottom}
+          className="absolute bottom-20 right-4 z-30 brutal flex h-10 w-10 animate-bounce items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-primary/90"
+          aria-label="Scroll to bottom"
+        >
+          <ArrowDown className="h-5 w-5" />
+        </button>
+      )}
 
       {/* Input */}
       <div className="sticky bottom-0 left-0 right-0 bg-background border-t-[3px] border-border z-20">

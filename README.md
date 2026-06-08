@@ -23,10 +23,10 @@ Built with an aggressive, high-contrast **Neobrutalism** aesthetic, it focuses o
 
 ## ✨ Features
 
-- **Interactive Community Chat**: A globally synchronized chat platform with **Realtime Threaded Replies**, **JSONB-driven Emoji Reactions**, and **Client-Side Auto-Hyperlinking** for a rich, WhatsApp-style experience.
+- **Interactive Community Chat**: A globally synchronized chat platform with **Realtime Threaded Replies**, **JSONB-driven Emoji Reactions**, and **Client-Side Auto-Hyperlinking** for a rich, WhatsApp-style experience. Featuring strict **Mobile Accessibility** with custom pointer handlers for long-press gestures (>400ms) and dynamic viewport scroll shortcuts.
 - **Unified Neobrutalist Mobile Navigation**: Designed exclusively for smaller viewports, utilizing a unified flat bottom nav, reactive active-state coloring, and `100dvh` CSS viewport control for seamless mobile immersion (immune to virtual keyboard collapsing).
-- **Multi-Method Authentication**: Secure sign-up/login via Google OAuth, standard Email & Password, or frictionless **Guest Access**.
-- **Credits Economy**: Verified users get a daily allowance and starting balance. Room creation costs credits, preventing spam.
+- **Multi-Method Authentication**: Secure sign-up/login via Google OAuth, standard Email & Password, or frictionless **Guest Access** with a mandatory **Full-Screen Onboarding Gate** to claim custom usernames.
+- **Credits Economy & Immutable Ledger**: Verified users get a daily allowance and starting balance. Room creation costs credits, preventing spam. All transactions are permanently tracked in a `<CreditHistory />` table accessible via the user profile.
 - **Fair Random Drawing**: Uses cryptographically secure RNG (`crypto.randomInt`) on the server to prevent cheating. Drawings are completely automated via Vercel Cron!
 - **Neobrutalism UI**: Bold borders, hard shadows, vibrant colors, and high contrast. Looks amazing on mobile and desktop.
 - **Dark & Light Mode**: Seamless theme toggling via `next-themes` that perfectly respects the brutalist aesthetic.

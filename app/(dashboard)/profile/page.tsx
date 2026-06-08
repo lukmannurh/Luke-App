@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { UpdateUsernameForm } from "@/components/profile/UpdateUsernameForm";
 import { UpdatePasswordForm } from "@/components/profile/UpdatePasswordForm";
 import { AvatarUpload } from "@/components/profile/AvatarUpload";
+import { CreditHistory } from "@/components/profile/CreditHistory";
 import { StateBadge } from "@/components/rooms/RoomCard";
 import { formatDistanceToNow } from "date-fns";
 
@@ -24,6 +25,7 @@ export default async function ProfilePage() {
     { data: participations },
     { count: hostedCount },
     { count: winCount },
+    { data: transactions },
   ] = await Promise.all([
     supabase.from("users").select("*").eq("id", user.id).single(),
     supabase
@@ -34,6 +36,7 @@ export default async function ProfilePage() {
       .limit(10),
     supabase.from("rooms").select("id", { count: "exact", head: true }).eq("host_id", user.id),
     supabase.from("winners").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+    supabase.from("transactions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),
   ]);
 
   const p = profile as any;
@@ -48,9 +51,9 @@ export default async function ProfilePage() {
 
       {/* Avatar + identity card */}
       <div className="brutal mt-5 flex items-center gap-4 rounded-2xl bg-accent p-5 text-accent-foreground">
-        <div className="brutal flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-lime text-lime-foreground">
+        <div className="brutal flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-lime text-lime-foreground border-2 border-black">
           {p?.avatar_url ? (
-            <AvatarUpload currentAvatar={p.avatar_url} userId={user.id} />
+            <img src={p.avatar_url} alt="Avatar" className="w-full h-full object-cover rounded-full" />
           ) : (
             <span className="text-2xl">🦊</span>
           )}
@@ -70,6 +73,9 @@ export default async function ProfilePage() {
         <Stat label="Wins" value={winCount ?? 0} accent="bg-lime text-lime-foreground" />
         <Stat label="Hosted" value={hostedCount ?? 0} accent="bg-pink text-pink-foreground" />
       </div>
+
+      {/* Transactions */}
+      <CreditHistory transactions={transactions || []} />
 
       {/* Recent activity */}
       {participations && participations.length > 0 && (

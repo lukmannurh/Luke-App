@@ -1,5 +1,6 @@
 import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
+import { GuestOnboardingModal } from "@/components/profile/GuestOnboardingModal";
 import { createClient } from "@/lib/supabase/server";
 
 // Layout fetches user profile via Supabase cookies — must be dynamic
@@ -17,14 +18,21 @@ export default async function DashboardLayout({
 }) {
   const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
+  
   let isAdmin = false;
+  let isGuest = false;
+  let username = null;
+
   if (session?.user) {
-    const { data } = await supabase.from('users').select('role').eq('id', session.user.id).single();
-    const profile = data as { role: string } | null;
+    isGuest = session.user.user_metadata?.is_guest === true;
+    const { data } = await supabase.from('users').select('role, username').eq('id', session.user.id).single();
+    const profile = data as { role: string, username: string } | null;
     isAdmin = profile?.role === 'admin';
+    username = profile?.username || null;
   }
   return (
-    <div className="flex min-h-screen flex-col bg-background w-full max-w-full overflow-x-hidden">
+    <div className="flex min-h-screen flex-col bg-background w-full max-w-full overflow-x-hidden relative">
+      <GuestOnboardingModal isGuest={isGuest} username={username} />
       <Header />
       <main
         id="main-content"
