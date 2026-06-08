@@ -1,10 +1,10 @@
 <div align="center">
 
-  # 🎁 Giveaway App
+  # 🎁 Luke App
   
-  **A Neobrutalist Community Giveaway Platform**
+  **A Neobrutalist Community & Giveaway Platform**
 
-  *Fair, transparent, and mobile-first giveaways for online communities.*
+  *Fair, transparent, and mobile-first experiences for online communities.*
 
   [![Next.js](https://img.shields.io/badge/Next.js-16.2-black?logo=next.js&logoColor=white)](#)
   [![Supabase](https://img.shields.io/badge/Supabase-Database_%26_Auth-3ECF8E?logo=supabase&logoColor=white)](#)
@@ -15,7 +15,7 @@
 
 ## 🌟 Overview
 
-The **Community Giveaway Platform** is a modern, mobile-first web application designed for online hobby and entertainment communities (anime, gaming, sports, Discord/WhatsApp groups). It allows users to create giveaway rooms, pick lucky numbers, and conduct secure server-side random drawings.
+The **Luke App** is a modern, mobile-first web application designed for online hobby and entertainment communities (anime, gaming, sports, Discord/WhatsApp groups). It features interactive global chat and allows users to create giveaway rooms, pick lucky numbers, and conduct secure server-side random drawings.
 
 Built with an aggressive, high-contrast **Neobrutalism** aesthetic, it focuses on transparency, fairness, and a snappy user experience.
 
@@ -23,6 +23,8 @@ Built with an aggressive, high-contrast **Neobrutalism** aesthetic, it focuses o
 
 ## ✨ Features
 
+- **Interactive Community Chat**: A globally synchronized chat platform with **Realtime Threaded Replies**, **JSONB-driven Emoji Reactions**, and **Client-Side Auto-Hyperlinking** for a rich, WhatsApp-style experience.
+- **Unified Neobrutalist Mobile Navigation**: Designed exclusively for smaller viewports, utilizing a unified flat bottom nav, reactive active-state coloring, and `100dvh` CSS viewport control for seamless mobile immersion (immune to virtual keyboard collapsing).
 - **Multi-Method Authentication**: Secure sign-up/login via Google OAuth, standard Email & Password, or frictionless **Guest Access**.
 - **Credits Economy**: Verified users get a daily allowance and starting balance. Room creation costs credits, preventing spam.
 - **Fair Random Drawing**: Uses cryptographically secure RNG (`crypto.randomInt`) on the server to prevent cheating. Drawings are completely automated via Vercel Cron!

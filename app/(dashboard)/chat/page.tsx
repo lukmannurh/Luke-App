@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Send } from "lucide-react";
+import { Send, Reply, X, SmilePlus } from "lucide-react";
 import { toast } from "sonner";
 import { LocalTime } from "@/components/shared/LocalTime";
 
@@ -11,17 +11,46 @@ type ChatMessage = {
   user_id: string;
   message: string;
   created_at: string;
+  parent_id?: string | null;
+  reactions?: Record<string, string> | null;
   users?: {
     username: string;
     avatar_url?: string;
   } | null;
 };
 
+const EMOJIS = ["👍", "🔥", "❤️", "😂"];
+
+function LinkifiedText({ text }: { text: string }) {
+  const parts = text.split(/(https?:\/\/[^\s]+)/g);
+  return (
+    <>
+      {parts.map((part, i) =>
+        /^https?:\/\//.test(part) ? (
+          <a
+            key={i}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 dark:text-blue-400 underline font-semibold break-all"
+          >
+            {part}
+          </a>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  );
+}
+
 export default function GlobalChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [replyingTo, setReplyingTo] = useState<ChatMessage | null>(null);
+  const [activePopoverMsgId, setActivePopoverMsgId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
 
@@ -33,7 +62,7 @@ export default function GlobalChatPage() {
       const { data, error } = await supabase
         .from("global_chat")
         .select(`
-          id, user_id, message, created_at,
+          id, user_id, message, created_at, parent_id, reactions,
           users:user_id(username, avatar_url)
         `)
         .order("created_at", { ascending: true })
@@ -56,21 +85,35 @@ export default function GlobalChatPage() {
       .channel("global-chat-channel")
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "global_chat" },
+        { event: "*", schema: "public", table: "global_chat" },
         async (payload) => {
-          // fetch user profile for the new message
-          const { data: userData } = await supabase
-            .from("users")
-            .select("username, avatar_url")
-            .eq("id", payload.new.user_id)
-            .single();
+          if (payload.eventType === "INSERT") {
+            const { data: userData } = await supabase
+              .from("users")
+              .select("username, avatar_url")
+              .eq("id", payload.new.user_id)
+              .single();
 
-          const newMsg = {
-            ...payload.new,
-            users: userData || { username: "Unknown" }
-          } as ChatMessage;
+            const newMsg = {
+              ...payload.new,
+              users: userData || { username: "Unknown" }
+            } as ChatMessage;
 
-          setMessages((prev) => [...prev, newMsg]);
+            setMessages((prev) => {
+              if (prev.find((m) => m.id === newMsg.id)) return prev;
+              return [...prev, newMsg];
+            });
+          } else if (payload.eventType === "UPDATE") {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === payload.new.id
+                  ? { ...m, reactions: payload.new.reactions }
+                  : m
+              )
+            );
+          } else if (payload.eventType === "DELETE") {
+            setMessages((prev) => prev.filter((m) => m.id !== payload.old.id));
+          }
         }
       )
       .subscribe();
@@ -91,16 +134,37 @@ export default function GlobalChatPage() {
     if (!newMessage.trim() || !currentUserId) return;
 
     const msgText = newMessage.trim();
-    setNewMessage(""); // optimistic clear
+    const parentId = replyingTo?.id || null;
+    
+    setNewMessage(""); 
+    setReplyingTo(null);
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("global_chat")
-      .insert({ user_id: currentUserId, message: msgText } as any);
+      .insert({ 
+        user_id: currentUserId, 
+        message: msgText,
+        parent_id: parentId
+      });
 
     if (error) {
       toast.error("Failed to send message.");
       setNewMessage(msgText); // revert
     }
+  }
+
+  async function toggleReaction(msgId: string, currentReactions: Record<string, string> | null, emoji: string) {
+    if (!currentUserId) return;
+    setActivePopoverMsgId(null);
+    const newReactions = { ...(currentReactions || {}) };
+    if (newReactions[currentUserId] === emoji) {
+      delete newReactions[currentUserId];
+    } else {
+      newReactions[currentUserId] = emoji;
+    }
+
+    setMessages((prev) => prev.map((m) => (m.id === msgId ? { ...m, reactions: newReactions } : m)));
+    await (supabase as any).from("global_chat").update({ reactions: newReactions }).eq('id', msgId);
   }
 
   return (
@@ -114,7 +178,7 @@ export default function GlobalChatPage() {
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-5 pb-12">
         {isLoading ? (
           <div className="text-center font-bold text-muted-foreground mt-10 animate-pulse">Loading messages...</div>
         ) : messages.length === 0 ? (
@@ -122,25 +186,115 @@ export default function GlobalChatPage() {
         ) : (
           messages.map((msg) => {
             const isMe = msg.user_id === currentUserId;
+            
+            // Render Avatar Logic
+            const avatarContent = msg.users?.avatar_url ? (
+              <img src={msg.users.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+            ) : (
+              <span>{msg.users?.username.charAt(0).toUpperCase() || "?"}</span>
+            );
+
+            // Group reactions
+            const groupedReactions = Object.values(msg.reactions || {}).reduce((acc, emoji) => {
+              acc[emoji] = (acc[emoji] || 0) + 1;
+              return acc;
+            }, {} as Record<string, number>);
+
+            // Find parent message if reply
+            const parentMsg = msg.parent_id ? messages.find((m) => m.id === msg.parent_id) : null;
+
             return (
-              <div key={msg.id} className={`flex w-full ${isMe ? "justify-end" : "justify-start"}`}>
-                <div className={`flex flex-col max-w-[80%] ${isMe ? "items-end" : "items-start"}`}>
+              <div key={msg.id} className={`flex w-full gap-2 ${isMe ? "justify-end" : "justify-start"}`}>
+                {!isMe && (
+                  <div className="w-8 h-8 mt-4 rounded-full border border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] bg-zinc-200 flex items-center justify-center font-black text-xs shrink-0 overflow-hidden">
+                    {avatarContent}
+                  </div>
+                )}
+                
+                <div className={`flex flex-col max-w-[75%] ${isMe ? "items-end" : "items-start"}`}>
                   {!isMe && (
                     <span className="text-[10px] font-bold text-muted-foreground mb-1 ml-1">
                       {msg.users?.username || "Unknown"}
                     </span>
                   )}
-                  <div
-                    className={`brutal px-3 py-2 text-sm font-medium ${
-                      isMe ? "bg-lime text-lime-foreground rounded-2xl rounded-tr-sm" : "bg-white text-zinc-900 rounded-2xl rounded-tl-sm dark:text-zinc-900"
-                    }`}
-                    style={{ wordBreak: "break-word" }}
-                  >
-                    {msg.message}
+                  
+                  {parentMsg && (
+                    <div className="text-[10px] bg-black/5 dark:bg-white/10 px-2 py-1 rounded-md mb-1 w-full truncate border-l-2 border-black/20 font-medium">
+                      Replying to <span className="font-bold">{parentMsg.users?.username}</span>: {parentMsg.message}
+                    </div>
+                  )}
+
+                  <div className="relative group flex items-center gap-2">
+                    {isMe && (
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                        <button onClick={() => setReplyingTo(msg)} className="p-1 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800" aria-label="Reply">
+                          <Reply className="w-4 h-4 text-muted-foreground" />
+                        </button>
+                      </div>
+                    )}
+                    <div
+                      className={`brutal px-3 py-2 text-sm font-medium relative ${
+                        isMe ? "bg-lime text-lime-foreground rounded-2xl rounded-tr-sm" : "bg-white text-zinc-900 rounded-2xl rounded-tl-sm dark:text-zinc-900"
+                      }`}
+                      style={{ wordBreak: "break-word" }}
+                    >
+                      <LinkifiedText text={msg.message} />
+                      
+                      {/* Reactions Popover Button attached to bubble */}
+                      {currentUserId && (
+                        <button 
+                          onClick={() => setActivePopoverMsgId(activePopoverMsgId === msg.id ? null : msg.id)}
+                          className={`absolute -bottom-2 ${isMe ? "-left-2" : "-right-2"} w-5 h-5 bg-white border border-black rounded-full flex items-center justify-center shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] opacity-0 group-hover:opacity-100 transition-opacity z-10`}
+                        >
+                          <SmilePlus className="w-3 h-3 text-zinc-700" />
+                        </button>
+                      )}
+
+                      {/* Emoji Popover */}
+                      {activePopoverMsgId === msg.id && (
+                        <div className={`absolute -bottom-10 ${isMe ? "left-0" : "right-0"} bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] p-1 flex gap-1 z-50`}>
+                          {EMOJIS.map((emoji) => (
+                            <button
+                              key={emoji}
+                              onClick={() => toggleReaction(msg.id, msg.reactions || null, emoji)}
+                              className="hover:bg-zinc-200 rounded px-1 text-lg"
+                            >
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {!isMe && (
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                        <button onClick={() => setReplyingTo(msg)} className="p-1 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-800" aria-label="Reply">
+                          <Reply className="w-4 h-4 text-muted-foreground" />
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  <span className="text-[9px] font-bold text-muted-foreground mt-1 opacity-70">
-                    <LocalTime iso={msg.created_at} format="timestamp" />
-                  </span>
+
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[9px] font-bold text-muted-foreground opacity-70">
+                      <LocalTime iso={msg.created_at} format="timestamp" />
+                    </span>
+                  </div>
+                  
+                  {Object.keys(groupedReactions).length > 0 && (
+                    <div className={`flex gap-1 mt-1 flex-wrap ${isMe ? "justify-end" : "justify-start"}`}>
+                      {Object.entries(groupedReactions).map(([emoji, count]) => (
+                        <button 
+                          key={emoji} 
+                          onClick={() => toggleReaction(msg.id, msg.reactions || null, emoji)}
+                          className={`bg-zinc-100 text-zinc-900 border border-black rounded-md px-1.5 py-0.5 text-xs inline-flex items-center gap-1 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:bg-zinc-200 ${
+                            msg.reactions?.[currentUserId!] === emoji ? "bg-zinc-300" : ""
+                          }`}
+                        >
+                          {emoji} <span className="font-bold">{count}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -149,15 +303,23 @@ export default function GlobalChatPage() {
       </div>
 
       {/* Input */}
-      <div className="sticky bottom-0 left-0 right-0 p-3 bg-background border-t-[3px] border-border z-20">
-        <form onSubmit={handleSend} className="flex gap-2">
+      <div className="sticky bottom-0 left-0 right-0 bg-background border-t-[3px] border-border z-20">
+        {replyingTo && (
+          <div className="flex items-center justify-between bg-zinc-100 border-b border-zinc-300 p-2 text-xs font-semibold text-zinc-700">
+            <span>Replying to {replyingTo.users?.username}</span>
+            <button onClick={() => setReplyingTo(null)} className="p-1 hover:bg-zinc-200 rounded-full">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+        <form onSubmit={handleSend} className="flex gap-2 p-3 py-2.5">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder={currentUserId ? "Type a message..." : "Sign in to chat"}
             disabled={!currentUserId}
-            className="brutal flex-1 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
+            className="brutal flex-1 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
             maxLength={500}
           />
           <button
