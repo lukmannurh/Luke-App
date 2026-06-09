@@ -141,16 +141,17 @@ export function UserMenu({ user }: UserMenuProps) {
           </a>
         </DropdownMenuItem>
 
-        <DropdownMenuItem asChild>
+        <div className="px-2 py-1.5">
           <a
             href="/release/app.apk"
+            download="LukeApp.apk"
             id="usermenu-download-apk"
-            className="flex items-center gap-2 cursor-pointer font-medium"
+            className="flex items-center gap-2 cursor-pointer font-medium hover:bg-zinc-100 rounded-sm px-2 py-1.5 text-sm transition-colors"
           >
             <Download className="h-4 w-4" />
             {t("downloadApk")}
           </a>
-        </DropdownMenuItem>
+        </div>
 
         <DropdownMenuSeparator className="border-t-2 border-[var(--color-border)]" />
 

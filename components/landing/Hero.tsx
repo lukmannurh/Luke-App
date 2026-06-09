@@ -1,4 +1,4 @@
-import { Download, ExternalLink } from "lucide-react";
+import { Download, ExternalLink, LogIn } from "lucide-react";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { dictionaries, Language } from "@/lib/i18n/dictionaries";
@@ -29,20 +29,21 @@ export async function Hero() {
       </p>
 
       <div className="mt-6 flex flex-col gap-3">
-        <Link
+        <a
           href="/release/app.apk"
+          download="LukeApp.apk"
           id="hero-open-app"
           className="brutal-press flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 sm:px-8 sm:py-4 font-display text-lg text-primary-foreground"
         >
           <Download className="h-6 w-6" strokeWidth={2.5} />
           {t("ctaDownload")}
-        </Link>
+        </a>
         <Link
           href="/login"
           id="hero-signin"
           className="brutal-press flex w-full items-center justify-center gap-2 rounded-xl bg-card px-4 py-3 sm:px-8 sm:py-4 font-display text-lg text-card-foreground"
         >
-          <Download className="h-6 w-6" strokeWidth={2.5} />
+          <LogIn className="h-6 w-6" strokeWidth={2.5} />
           Sign In / Guest
         </Link>
       </div>

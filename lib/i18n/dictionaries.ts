@@ -30,6 +30,13 @@ export const dictionaries = {
     guestSavingBtn: "Saving...",
     
     // Chat Actions
+    chatTitle: "Global Chat",
+    chatSubtitle: "Chat history is automatically cleared after 7 days to save space.",
+    chatLoading: "Loading messages...",
+    chatEmpty: "No messages yet. Say hi!",
+    chatReplyingTo: "Replying to",
+    chatPlaceholder: "Type a message...",
+    chatSignInPrompt: "Sign in to chat",
     chatReply: "💬 Reply",
     chatCopy: "📋 Copy Text",
     chatCopied: "Text copied to clipboard!",
@@ -70,6 +77,13 @@ export const dictionaries = {
     guestSavingBtn: "Menyimpan...",
     
     // Chat Actions
+    chatTitle: "Obrolan Global",
+    chatSubtitle: "Riwayat obrolan otomatis dihapus setelah 7 hari untuk menghemat ruang.",
+    chatLoading: "Memuat pesan...",
+    chatEmpty: "Belum ada pesan. Sapa sekarang!",
+    chatReplyingTo: "Membalas",
+    chatPlaceholder: "Ketik pesan...",
+    chatSignInPrompt: "Masuk untuk mengobrol",
     chatReply: "💬 Balas",
     chatCopy: "📋 Salin Teks",
     chatCopied: "Teks disalin ke papan klip!",
