@@ -8,6 +8,8 @@ import { CreditHistory } from "@/components/profile/CreditHistory";
 import { StateBadge } from "@/components/rooms/RoomCard";
 import { formatDistanceToNow } from "date-fns";
 
+import { LanguageSelector } from "@/components/profile/LanguageSelector";
+
 export const metadata = {
   title: "Your Profile — Giveaway App",
 };
@@ -109,6 +111,14 @@ export default async function ProfilePage() {
       <section className="mt-6">
         <h2 className="font-display text-lg">Account Settings</h2>
         <div className="mt-3 flex flex-col gap-4">
+
+
+          <div className="brutal rounded-2xl bg-card p-5 text-card-foreground">
+            <h3 className="font-display text-base">Language / Bahasa</h3>
+            <div className="mt-3">
+              <LanguageSelector />
+            </div>
+          </div>
           <div className="brutal rounded-2xl bg-card p-5 text-card-foreground">
             <h3 className="font-display text-base">Change Username</h3>
             <div className="mt-3">

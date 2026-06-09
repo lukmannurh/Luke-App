@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Send, Reply, X, SmilePlus, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
 import { LocalTime } from "@/components/shared/LocalTime";
+import { useTranslation } from "@/components/i18n/LanguageContext";
 
 type ChatMessage = {
   id: string;
@@ -55,6 +56,7 @@ export default function GlobalChatPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
   const supabase = createClient();
+  const { t } = useTranslation();
 
   const handlePointerDown = (msgId: string) => {
     if (longPressTimer.current) clearTimeout(longPressTimer.current);
@@ -199,6 +201,12 @@ export default function GlobalChatPage() {
     await (supabase as any).from("global_chat").update({ reactions: newReactions }).eq('id', msgId);
   }
 
+  function handleCopy(text: string) {
+    navigator.clipboard.writeText(text);
+    toast.success(t("chatCopied"));
+    setActivePopoverMsgId(null);
+  }
+
   return (
     <div className="flex flex-col w-full min-h-[100dvh] relative bg-background">
       {/* Header */}
@@ -295,18 +303,33 @@ export default function GlobalChatPage() {
                         </button>
                       )}
 
-                      {/* Emoji Popover */}
+                      {/* Unified Popover Menu */}
                       {activePopoverMsgId === msg.id && (
-                        <div className={`absolute -bottom-10 ${isMe ? "left-0" : "right-0"} bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] p-1 flex gap-1 z-50`}>
-                          {EMOJIS.map((emoji) => (
-                            <button
-                              key={emoji}
-                              onClick={() => toggleReaction(msg.id, msg.reactions || null, emoji)}
-                              className="hover:bg-zinc-200 rounded px-1 text-lg"
-                            >
-                              {emoji}
-                            </button>
-                          ))}
+                        <div className={`absolute -bottom-24 ${isMe ? "right-0" : "left-0"} bg-white border-2 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-2 flex flex-col gap-2 z-50 w-40 animate-in fade-in zoom-in duration-200`}>
+                          <div className="flex justify-between px-1">
+                            {EMOJIS.map((emoji) => (
+                              <button
+                                key={emoji}
+                                onClick={(e) => { e.stopPropagation(); toggleReaction(msg.id, msg.reactions || null, emoji); }}
+                                className="hover:bg-zinc-200 rounded px-1 text-lg transition-transform hover:scale-125"
+                              >
+                                {emoji}
+                              </button>
+                            ))}
+                          </div>
+                          <div className="h-[2px] w-full bg-border" />
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setReplyingTo(msg); setActivePopoverMsgId(null); }}
+                            className="flex items-center gap-2 text-sm font-bold text-left px-2 py-1.5 hover:bg-zinc-100 rounded-md transition-colors"
+                          >
+                            {t("chatReply")}
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleCopy(msg.message); }}
+                            className="flex items-center gap-2 text-sm font-bold text-left px-2 py-1.5 hover:bg-zinc-100 rounded-md transition-colors"
+                          >
+                            {t("chatCopy")}
+                          </button>
                         </div>
                       )}
                     </div>
@@ -351,10 +374,10 @@ export default function GlobalChatPage() {
       {showScrollArrow && (
         <button
           onClick={scrollToBottom}
-          className="absolute bottom-20 right-4 z-30 brutal flex h-10 w-10 animate-bounce items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-primary/90"
+          className="absolute bottom-20 right-4 z-30 brutal flex w-12 h-12 animate-bounce items-center justify-center rounded-full bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-black hover:bg-zinc-100"
           aria-label="Scroll to bottom"
         >
-          <ArrowDown className="h-5 w-5" />
+          <ArrowDown className="h-6 w-6" />
         </button>
       )}
 

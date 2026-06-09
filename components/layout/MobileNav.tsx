@@ -7,12 +7,14 @@ import { Home, History, User, ShieldAlert, MessageCircle } from "lucide-react";
 import { InstallPWA } from "@/components/ui/InstallPWA";
 import { createClient } from "@/lib/supabase/client";
 
+import { useTranslation } from "@/components/i18n/LanguageContext";
+
 const navItems = [
-  { href: "/rooms", label: "Home", icon: Home, id: "mobile-nav-home" },
-  { href: "/chat", label: "Chat", icon: MessageCircle, id: "mobile-nav-chat" },
-  { href: "/rooms/history", label: "History", icon: History, id: "mobile-nav-history" },
-  { href: "/profile", label: "Profile", icon: User, id: "mobile-nav-profile" },
-  { href: "/admin", label: "Admin", icon: ShieldAlert, id: "mobile-nav-admin" },
+  { href: "/rooms", labelKey: "home" as const, icon: Home, id: "mobile-nav-home" },
+  { href: "/chat", labelKey: "chat" as const, icon: MessageCircle, id: "mobile-nav-chat" },
+  { href: "/rooms/history", labelKey: "history" as const, icon: History, id: "mobile-nav-history" },
+  { href: "/profile", labelKey: "profile" as const, icon: User, id: "mobile-nav-profile" },
+  { href: "/admin", labelKey: "Admin" as const, icon: ShieldAlert, id: "mobile-nav-admin" },
 ];
 
 /**
@@ -21,6 +23,7 @@ const navItems = [
  */
 export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+  const { t } = useTranslation();
   const [hasUnread, setHasUnread] = useState(false);
   const supabase = createClient();
 
@@ -61,14 +64,14 @@ export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
       <div className="mx-auto flex max-w-md items-end justify-between gap-1 px-2 py-2 relative">
         <NavTab
           href={navItems[0].href}
-          label={navItems[0].label}
+          label={t(navItems[0].labelKey as any)}
           Icon={navItems[0].icon}
           id={navItems[0].id}
           active={pathname === "/rooms" || pathname.startsWith("/rooms/") && !pathname.startsWith("/rooms/history") && !pathname.startsWith("/rooms/create")}
         />
         <NavTab
           href={navItems[1].href}
-          label={navItems[1].label}
+          label={t(navItems[1].labelKey as any)}
           Icon={navItems[1].icon}
           id={navItems[1].id}
           active={pathname === "/chat"}
@@ -76,14 +79,14 @@ export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
         />
         <NavTab
           href={navItems[2].href}
-          label={navItems[2].label}
+          label={t(navItems[2].labelKey as any)}
           Icon={navItems[2].icon}
           id={navItems[2].id}
           active={pathname.startsWith("/rooms/history")}
         />
         <NavTab
           href={navItems[3].href}
-          label={navItems[3].label}
+          label={t(navItems[3].labelKey as any)}
           Icon={navItems[3].icon}
           id={navItems[3].id}
           active={pathname.startsWith("/profile")}
@@ -91,7 +94,7 @@ export function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
         {isAdmin && (
           <NavTab
             href={navItems[4].href}
-            label={navItems[4].label}
+            label={t(navItems[4].labelKey as any)}
             Icon={navItems[4].icon}
             id={navItems[4].id}
             active={pathname.startsWith("/admin")}

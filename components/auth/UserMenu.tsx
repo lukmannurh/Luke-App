@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { Download } from "lucide-react";
+import { useTranslation } from "@/components/i18n/LanguageContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +23,7 @@ interface UserMenuProps {
  */
 export function UserMenu({ user }: UserMenuProps) {
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const { t } = useTranslation();
 
   async function handleSignOut() {
     setIsSigningOut(true);
@@ -112,7 +115,7 @@ export function UserMenu({ user }: UserMenuProps) {
             className="flex items-center gap-2 cursor-pointer font-medium"
           >
             <span aria-hidden="true">🏠</span>
-            Home
+            {t("home")}
           </a>
         </DropdownMenuItem>
 
@@ -123,7 +126,7 @@ export function UserMenu({ user }: UserMenuProps) {
             className="flex items-center gap-2 cursor-pointer font-medium"
           >
             <span aria-hidden="true">👤</span>
-            My Profile
+            {t("myProfile")}
           </a>
         </DropdownMenuItem>
 
@@ -134,7 +137,18 @@ export function UserMenu({ user }: UserMenuProps) {
             className="flex items-center gap-2 cursor-pointer font-medium"
           >
             <span aria-hidden="true">📜</span>
-            Drawing History
+            {t("drawingHistory")}
+          </a>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem asChild>
+          <a
+            href="/release/app.apk"
+            id="usermenu-download-apk"
+            className="flex items-center gap-2 cursor-pointer font-medium"
+          >
+            <Download className="h-4 w-4" />
+            {t("downloadApk")}
           </a>
         </DropdownMenuItem>
 
@@ -151,7 +165,7 @@ export function UserMenu({ user }: UserMenuProps) {
           style={{ color: "var(--color-destructive)" }}
         >
           <span aria-hidden="true">{isSigningOut ? "⏳" : "🚪"}</span>
-          {isSigningOut ? "Signing out…" : "Sign out"}
+          {isSigningOut ? "..." : t("signOut")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

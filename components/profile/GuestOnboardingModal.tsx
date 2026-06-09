@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useTranslation } from "@/components/i18n/LanguageContext";
 
 export function GuestOnboardingModal({
   isGuest,
@@ -13,6 +14,7 @@ export function GuestOnboardingModal({
 }) {
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useTranslation();
   
   // Needs a new username if it's a guest AND username is missing, or contains "guest" or "anonymous"
   const needsUsername =
@@ -76,21 +78,21 @@ export function GuestOnboardingModal({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-zinc-900/80 backdrop-blur-sm p-4">
       <div className="brutal w-full max-w-sm bg-accent p-6 text-accent-foreground rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-rise">
-        <h2 className="font-display text-2xl mb-2 leading-tight">Welcome, Guest! 👋</h2>
+        <h2 className="font-display text-2xl mb-2 leading-tight">{t("guestWelcome")}</h2>
         <p className="text-sm font-medium mb-6">
-          Before you can join giveaways or chat with the community, you need to set a custom username.
+          {t("guestDesc")}
         </p>
         
         <form onSubmit={handleSave} className="flex flex-col gap-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wide mb-1">
-              Guest Username
+              {t("guestUsernameLabel")}
             </label>
             <input
               type="text"
               value={newUsername}
               onChange={(e) => setNewUsername(e.target.value)}
-              placeholder="e.g. LukeSkywalker"
+              placeholder={t("guestUsernamePlaceholder")}
               className="brutal w-full rounded-xl border-2 border-black bg-white px-3 py-2 text-sm text-black placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-black"
               maxLength={20}
               required
@@ -103,7 +105,7 @@ export function GuestOnboardingModal({
             disabled={isLoading}
             className="brutal-press mt-2 w-full rounded-xl bg-lime py-3 text-sm font-bold text-lime-foreground disabled:opacity-50"
           >
-            {isLoading ? "Saving..." : "Save Username"}
+            {isLoading ? t("guestSavingBtn") : t("guestSaveBtn")}
           </button>
         </form>
       </div>

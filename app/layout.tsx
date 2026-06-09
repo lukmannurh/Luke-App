@@ -5,6 +5,9 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { LanguageProvider } from "@/components/i18n/LanguageContext";
+import { cookies } from "next/headers";
+import { Language } from "@/lib/i18n/dictionaries";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -42,11 +45,15 @@ export const viewport = {
   maximumScale: 5,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const localeCookie = cookieStore.get("NEXT_LOCALE");
+  const initialLang = (localeCookie?.value === "id" ? "id" : "en") as Language;
+
   return (
     <html lang="en" className={cn(spaceGrotesk.variable, archivoBlack.variable, "w-full max-w-full overflow-x-hidden")} suppressHydrationWarning>
       <head>
@@ -59,11 +66,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {/* Skip to main content — first focusable element for keyboard/screen reader users */}
-          <a href="#main-content" className="skip-to-content sr-only focus:not-sr-only">
-            Skip to main content
-          </a>
-          {children}
+          <LanguageProvider initialLanguage={initialLang}>
+            {/* Skip to main content — first focusable element for keyboard/screen reader users */}
+            <a href="#main-content" className="skip-to-content sr-only focus:not-sr-only">
+              Skip to main content
+            </a>
+            {children}
+          </LanguageProvider>
           <Toaster
             position="bottom-right"
             toastOptions={{

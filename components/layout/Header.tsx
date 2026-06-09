@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import type { User } from "@/lib/types";
 import { ThemeToggleButton } from "@/components/theme/ThemeToggleButton";
 import { UserMenu } from "@/components/auth/UserMenu";
+import { cookies } from "next/headers";
+import { dictionaries, Language } from "@/lib/i18n/dictionaries";
 
 /**
  * AppHeader — Lovable-style sticky header.
@@ -11,6 +13,11 @@ import { UserMenu } from "@/components/auth/UserMenu";
  * Server Component: fetches user/profile for coin display.
  */
 export async function Header() {
+  const cookieStore = await cookies();
+  const localeCookie = cookieStore.get("NEXT_LOCALE");
+  const language = (localeCookie?.value === "id" ? "id" : "en") as Language;
+  const t = (key: keyof typeof dictionaries.en) => dictionaries[language][key] || dictionaries.en[key] || key;
+
   const supabase = await createClient();
   const {
     data: { session },
@@ -38,8 +45,8 @@ export async function Header() {
         {/* Right: coin balance + theme */}
         <div className="flex items-center gap-2 pr-2">
           {profile && (
-            <span className="brutal flex items-center font-bold px-3 py-1 rounded-xl bg-coin text-sm text-coin-foreground">
-              {Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(profile.credits)} Credits
+            <span className="brutal flex items-center font-bold px-3 py-1 rounded-xl bg-coin text-sm text-coin-foreground whitespace-nowrap">
+              {Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(profile.credits)} {t("credits")}
             </span>
           )}
           <ThemeToggleButton />
@@ -49,9 +56,9 @@ export async function Header() {
             <Link
               href="/login"
               id="header-signin"
-              className="brutal-press-sm flex h-10 items-center rounded-xl bg-primary px-3 font-display text-sm text-primary-foreground"
+              className="brutal-press-sm flex h-10 items-center rounded-xl bg-primary px-3 font-display text-sm text-primary-foreground whitespace-nowrap"
             >
-              Sign in
+              {t("signIn")}
             </Link>
           )}
         </div>
