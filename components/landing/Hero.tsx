@@ -32,6 +32,8 @@ export async function Hero() {
         <a
           href="/release/app.apk"
           download="LukeApp.apk"
+          target="_blank"
+          rel="noopener noreferrer"
           id="hero-open-app"
           className="brutal-press flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 sm:px-8 sm:py-4 font-display text-lg text-primary-foreground"
         >

@@ -145,6 +145,8 @@ export function UserMenu({ user }: UserMenuProps) {
           <a
             href="/release/app.apk"
             download="LukeApp.apk"
+            target="_blank"
+            rel="noopener noreferrer"
             id="usermenu-download-apk"
             className="flex items-center gap-2 cursor-pointer font-medium hover:bg-zinc-100 rounded-sm px-2 py-1.5 text-sm transition-colors"
           >
