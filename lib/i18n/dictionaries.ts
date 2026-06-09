@@ -21,6 +21,16 @@ export const dictionaries = {
     ctaDownload: "Download APK",
     footerText: "Created by lil owi",
     
+    // Features (Bento)
+    bentoBuiltFor: "Built for",
+    bentoThumb: "your thumb.",
+    feat1Title: "Smart Credits",
+    feat1Desc: "A seamless virtual coin system. Top up once, join any room instantly.",
+    feat2Title: "Zero-Wait Draws",
+    feat2Desc: "Automatic, on-time draws powered by a Lazy Evaluation System. No host needed.",
+    feat3Title: "Frictionless Entry",
+    feat3Desc: "Hop into any room as a Guest in under one second. No signup walls.",
+    
     // Guest Onboarding
     guestWelcome: "Welcome, Guest! 👋",
     guestDesc: "Before you can join giveaways or chat with the community, you need to set a custom username.",
@@ -67,6 +77,16 @@ export const dictionaries = {
     heroDesc: "Luke App adalah platform undian komunitas mobile-first. Jalankan undian koin transparan dengan sistem kredit, tanpa menunggu, dan akses masuk tamu yang mudah.",
     ctaDownload: "Unduh APK",
     footerText: "Dibuat oleh lil owi",
+    
+    // Features (Bento)
+    bentoBuiltFor: "Diciptakan untuk",
+    bentoThumb: "jempol Anda.",
+    feat1Title: "Kredit Pintar",
+    feat1Desc: "Sistem koin virtual tanpa repot. Isi sekali, gabung ruangan apa pun secara instan.",
+    feat2Title: "Undian Tanpa Menunggu",
+    feat2Desc: "Undian otomatis tepat waktu menggunakan Lazy Evaluation System. Tanpa perlu host.",
+    feat3Title: "Masuk Tanpa Hambatan",
+    feat3Desc: "Masuk ke ruangan mana saja sebagai Tamu di bawah satu detik. Tanpa pendaftaran.",
     
     // Guest Onboarding
     guestWelcome: "Selamat datang, Tamu! 👋",

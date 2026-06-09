@@ -19,11 +19,19 @@ const serwist = new Serwist({
   navigationPreload: true,
   runtimeCaching: [
     {
-      matcher: ({ url }) => url.pathname.startsWith("/release/"),
+      matcher: ({ url }) => url.pathname.startsWith("/release/") || url.pathname.endsWith(".apk"),
       handler: new NetworkOnly(),
     },
     ...defaultCache,
   ],
+});
+
+// Intercept early to guarantee bypass before Serwist takes over
+self.addEventListener("fetch", (event) => {
+  const url = new URL(event.request.url);
+  if (url.pathname.startsWith("/release/") || url.pathname.endsWith(".apk")) {
+    return; // Do not call event.respondWith(), let browser handle it natively
+  }
 });
 
 serwist.addEventListeners();
