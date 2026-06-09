@@ -45,6 +45,9 @@ export async function proxy(request: NextRequest) {
     pathname === "/" ||         // Landing page — always public
     pathname === "/login" ||
     pathname === "/register" ||
+    pathname === "/manifest.webmanifest" ||
+    pathname === "/manifest.json" ||
+    pathname === "/sw.js" ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/cron") ||
     pathname.startsWith("/_next") ||

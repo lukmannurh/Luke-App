@@ -52,18 +52,21 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/sw.js",
+        source: '/manifest.webmanifest',
         headers: [
-          { key: "Access-Control-Allow-Origin", value: "*" },
-          { key: "Service-Worker-Allowed", value: "/" },
-        ],
+          { key: 'Content-Type', value: 'application/manifest+json; charset=utf-8' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Service-Worker-Allowed', value: '/' }
+        ]
       },
       {
-        source: "/manifest.webmanifest",
+        source: '/sw.js',
         headers: [
-          { key: "Access-Control-Allow-Origin", value: "*" },
-        ],
-      },
+          { key: 'Content-Type', value: 'application/javascript; charset=utf-8' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Service-Worker-Allowed', value: '/' }
+        ]
+      }
     ];
   },
 };
